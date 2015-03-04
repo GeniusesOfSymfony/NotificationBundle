@@ -1,0 +1,54 @@
+services:
+    gos_notification.notification_center:
+        class: Gos\Bundle\NotificationBundle\NotificationCenter
+        arguments:
+            - @gos_notification.publisher
+            - @gos_notification.fetcher
+
+    gos_notification.notification.pubsub.server:
+        class: Gos\Bundle\NotificationBundle\Server\PubSubServer
+        arguments:
+            - @event_dispatcher
+            - %gos_notification.notification_class%
+            - %gos_notification.notification_context_class%
+            - @gos_notification.pusher.registry
+            - %gos_notification.pubsub_server.config%
+            - @?monolog.logger.notification
+        tags:
+            - { name: gos_web_socket.server }
+
+    gos_notification.notification.listener:
+        class: Gos\Bundle\NotificationBundle\Listener\NotificationListener
+
+    gos_notification.user.topic:
+        class: Gos\Bundle\NotificationBundle\Topic\UserNotificationTopic
+        tags:
+            - { name: gos_web_socket.topic }
+
+    gos_notification.pusher.registry:
+        class: Gos\Bundle\NotificationBundle\Pusher\PusherRegistry
+
+    gos_notification.pusher.redis:
+        class: Gos\Bundle\NotificationBundle\Pusher\RedisPusher
+        arguments:
+            - 127.0.0.1
+            - 6379
+            - @event_dispatcher
+#        tags:
+#            - { name: gos_notification.pusher }
+
+    gos_notification.pusher.websocket:
+        class: Gos\Bundle\NotificationBundle\Pusher\WebsocketPusher
+        arguments:
+            - %web_socket_server.host%
+            - %web_socket_server.port%
+#        tags:
+#            - { name: gos_notification.pusher }
+
+    gos_notification.fetcher.redis:
+        class: Gos\Bundle\NotificationBundle\Fetcher\RedisFetcher
+
+    gos_notification.publisher.redis:
+        class: Gos\Bundle\NotificationBundle\Publisher\RedisPublisher
+        arguments:
+            - @snc_redis.notification
