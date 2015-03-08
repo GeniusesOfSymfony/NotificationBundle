@@ -2,15 +2,15 @@
 
 namespace Gos\Bundle\NotificationBundle\Server;
 
-use Gos\Bundle\NotificationBundle\Context\NotificationContextInterface;
 use Gos\Bundle\NotificationBundle\Event\NotificationEvents;
 use Gos\Bundle\NotificationBundle\Event\NotificationPublishedEvent;
 use Gos\Bundle\NotificationBundle\Model\Message\Message;
 use Gos\Bundle\NotificationBundle\Model\Message\PatternMessage;
-use Gos\Bundle\NotificationBundle\Model\NotificationInterface;
 use Gos\Bundle\NotificationBundle\Pusher\PusherInterface;
 use Gos\Bundle\NotificationBundle\Pusher\PusherLoopAwareInterface;
 use Gos\Bundle\NotificationBundle\Pusher\PusherRegistry;
+use Gos\Bundle\NotificationBundle\Serializer\NotificationContextSerializerInterface;
+use Gos\Bundle\NotificationBundle\Serializer\NotificationSerializerInterface;
 use Gos\Bundle\WebSocketBundle\Event\Events;
 use Gos\Bundle\WebSocketBundle\Event\ServerEvent;
 use Gos\Bundle\WebSocketBundle\Server\Type\ServerInterface;
@@ -21,9 +21,6 @@ use Psr\Log\LoggerInterface;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 /**
  * @author Johann Saunier <johann_27@hotmail.fr>
@@ -42,11 +39,11 @@ class PubSubServer implements ServerInterface
     /** @var  EventDispatcherInterface */
     protected $eventDispatcher;
 
-    /** @var string */
-    protected $notificationClass;
+    /** @var NotificationSerializerInterface */
+    protected $notificationSerializer;
 
-    /** @var string */
-    protected $notificationContextClass;
+    /** @var NotificationContextSerializerInterface */
+    protected $contextSerializer;
 
     /** @var PusherRegistry */
     protected $pusherRegistry;
@@ -55,25 +52,25 @@ class PubSubServer implements ServerInterface
     protected $pubSubConfig;
 
     /**
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param string                   $notificationClass
-     * @param string                   $notificationContextClass
-     * @param PusherRegistry           $pusherRegistry
-     * @param array                    $pubSubConfig
-     * @param LoggerInterface          $logger
+     * @param EventDispatcherInterface               $eventDispatcher
+     * @param NotificationSerializerInterface        $notificationSerializer
+     * @param NotificationContextSerializerInterface $contextSerializer
+     * @param PusherRegistry                         $pusherRegistry
+     * @param array                                  $pubSubConfig
+     * @param LoggerInterface                        $logger
      */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        $notificationClass,
-        $notificationContextClass,
+        NotificationSerializerInterface $notificationSerializer,
+        NotificationContextSerializerInterface $contextSerializer,
         PusherRegistry $pusherRegistry,
         Array $pubSubConfig,
         LoggerInterface $logger = null
     ) {
         $this->logger = $logger;
         $this->eventDispatcher = $eventDispatcher;
-        $this->notificationClass = $notificationClass;
-        $this->notificationContextClass = $notificationContextClass;
+        $this->notificationSerializer = $notificationSerializer;
+        $this->contextSerializer = $contextSerializer;
         $this->pusherRegistry = $pusherRegistry;
         $this->pubSubConfig = $pubSubConfig;
     }
@@ -113,7 +110,7 @@ class PubSubServer implements ServerInterface
     }
 
     /**
-     * Launches the server loop.
+     * {@inheritdoc}
      */
     public function launch()
     {
@@ -177,15 +174,9 @@ class PubSubServer implements ServerInterface
 
                 list($notificationRaw, $contextRaw) = json_decode($message->getPayload(), true);
 
-                $encoders = array(new JsonEncoder());
-                $normalizer = array(new GetSetMethodNormalizer());
-                $serializer = new Serializer($normalizer, $encoders);
+                $notification = $this->notificationSerializer->deserialize(json_encode($notificationRaw));
 
-                /** @var NotificationInterface $notification */
-                $notification = $serializer->deserialize(json_encode($notificationRaw), $this->notificationClass, 'json');
-
-                /** @var NotificationContextInterface $context */
-                $context = $serializer->deserialize(json_encode($contextRaw), $this->notificationContextClass, 'json');
+                $context = $this->contextSerializer->deserialize(json_encode($contextRaw));
 
                 if (null !== $this->logger) {
                     $this->logger->info('process notification');
@@ -226,9 +217,7 @@ class PubSubServer implements ServerInterface
     }
 
     /**
-     * Returns a string of the host:port for debugging / display purposes.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getAddress()
     {
@@ -236,9 +225,7 @@ class PubSubServer implements ServerInterface
     }
 
     /**
-     * Returns a string of the name of the server/service for debugging / display purposes.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getName()
     {

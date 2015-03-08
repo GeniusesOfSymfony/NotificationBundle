@@ -45,8 +45,10 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('pubsub_server')
                 ->children()
                     ->scalarNode('type')->end()
-                    ->scalarNode('host')->end()
-                    ->scalarNode('port')->end()
+                    ->arrayNode('config')
+                        ->prototype('scalar')
+                        ->end()
+                    ->end()
                 ->end()
             ->end()
         ->end();

@@ -30,9 +30,7 @@ class RedisPublisher implements PublisherInterface
     }
 
     /**
-     * @param string                       $channel
-     * @param NotificationInterface        $notification
-     * @param NotificationContextInterface $context
+     * {@inheritdoc}
      */
     public function publish($channel, NotificationInterface $notification, NotificationContextInterface $context)
     {

@@ -35,7 +35,7 @@ class NotificationCenter implements NotificationManipulatorInterface
     }
 
     /**
-     * {@inheritdoc.
+     * {@inheritdoc}
      */
     public function fetch($channel, $start, $end)
     {
@@ -43,10 +43,34 @@ class NotificationCenter implements NotificationManipulatorInterface
     }
 
     /**
-     * {@inheritdoc.
+     * {@inheritdoc}
      */
-    public function publish($channel, NotificationInterface $notification, NotificationContextInterface $context)
+    public function publish($channels, NotificationInterface $notification, NotificationContextInterface $context)
     {
-        return $this->publisher->publish($channel, $notification, $context);
+        return $this->publisher->publish($channels, $notification, $context);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count($channels, array $options = array())
+    {
+        return $this->fetcher->count($channels, $options);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getNotification($channel, $uuid)
+    {
+        return $this->fetcher->getNotification($channel, $uuid);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function markAsViewed($channel, $uuidOrNotification, $force = false)
+    {
+        $this->fetcher->markAsViewed($channel, $uuidOrNotification);
     }
 }

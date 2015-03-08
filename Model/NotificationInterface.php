@@ -55,15 +55,15 @@ interface NotificationInterface extends \JsonSerializable
     /**
      * @param \DateTime $viewedAt
      */
-    public function setViewedAt($viewedAt);
+    public function setViewedAt($viewedAt = null);
 
     /**
-     * @return \DateTime
+     * @return \DateTime|string
      */
     public function getCreatedAt();
 
     /**
-     * @param \DateTime $createdAt
+     * @param \DateTime|string $createdAt
      */
     public function setCreatedAt($createdAt);
 

@@ -30,7 +30,8 @@ class GosNotificationExtension extends Extension implements PrependExtensionInte
         $configuration = new Configuration();
         $configs = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('gos_notification.pubsub_server.config', $configs['pubsub_server']);
+        $container->setParameter('gos_notification.pubsub_server.type', $configs['pubsub_server']['type']);
+        $container->setParameter('gos_notification.pubsub_server.config', $configs['pubsub_server']['config']);
 
         //class
         $container->setParameter('gos_notification.notification_class', $configs['class']['notification']);

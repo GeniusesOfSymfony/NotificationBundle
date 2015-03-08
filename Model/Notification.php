@@ -128,11 +128,15 @@ class Notification implements NotificationInterface
     }
 
     /**
-     * @param \DateTime $viewedAt
+     * @param \DateTime|string $viewedAt
      */
-    public function setViewedAt($viewedAt)
+    public function setViewedAt($viewedAt = null)
     {
-        $this->viewedAt = $viewedAt;
+        if ($viewedAt instanceof \DateTime) {
+            $this->viewedAt = $viewedAt;
+        } else {
+            $this->viewedAt = \DateTime::createFromFormat(\DateTime::W3C, $viewedAt);
+        }
     }
 
     /**
@@ -144,11 +148,15 @@ class Notification implements NotificationInterface
     }
 
     /**
-     * @param \DateTime $createdAt
+     * @param \DateTime|string $createdAt
      */
     public function setCreatedAt($createdAt)
     {
-        $this->createdAt = $createdAt;
+        if ($createdAt instanceof \DateTime) {
+            $this->createdAt = $createdAt;
+        } else {
+            $this->createdAt = \DateTime::createFromFormat(\DateTime::W3C, $createdAt);
+        }
     }
 
     /**

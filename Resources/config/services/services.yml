@@ -9,8 +9,8 @@ services:
         class: Gos\Bundle\NotificationBundle\Server\PubSubServer
         arguments:
             - @event_dispatcher
-            - %gos_notification.notification_class%
-            - %gos_notification.notification_context_class%
+            - @gos_notification.notification.serializer
+            - @gos_notification.notification_context.serializer
             - @gos_notification.pusher.registry
             - %gos_notification.pubsub_server.config%
             - @?monolog.logger.notification
@@ -31,8 +31,7 @@ services:
     gos_notification.pusher.redis:
         class: Gos\Bundle\NotificationBundle\Pusher\RedisPusher
         arguments:
-            - 127.0.0.1
-            - 6379
+            - @snc_redis.notification
             - @event_dispatcher
 #        tags:
 #            - { name: gos_notification.pusher }
@@ -47,8 +46,21 @@ services:
 
     gos_notification.fetcher.redis:
         class: Gos\Bundle\NotificationBundle\Fetcher\RedisFetcher
+        arguments:
+            - @snc_redis.notification
+            - @gos_notification.notification.serializer
 
     gos_notification.publisher.redis:
         class: Gos\Bundle\NotificationBundle\Publisher\RedisPublisher
         arguments:
             - @snc_redis.notification
+
+    gos_notification.notification.serializer:
+        class: Gos\Bundle\NotificationBundle\Serializer\NotificationSerializer
+        arguments:
+            - %gos_notification.notification_class%
+
+    gos_notification.notification_context.serializer:
+        class: Gos\Bundle\NotificationBundle\Serializer\NotificationContextSerializer
+        arguments:
+            - %gos_notification.notification_context_class%
