@@ -13,6 +13,7 @@ services:
             - @gos_notification.notification_context.serializer
             - @gos_notification.pusher.registry
             - %gos_notification.pubsub_server.config%
+            - @gos_pubsub_router.router
             - @?monolog.logger.notification
         tags:
             - { name: gos_web_socket.server }

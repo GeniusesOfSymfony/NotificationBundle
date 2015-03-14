@@ -17,6 +17,8 @@ class IndexOfElement extends ScriptedCommand
     /**
      * Gets the body of a Lua script.
      *
+     * lidxof notification:user:username uuid my-super-uuid
+     *
      * @return string
      */
     public function getScript()

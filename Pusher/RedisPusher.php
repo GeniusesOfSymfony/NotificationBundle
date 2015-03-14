@@ -58,12 +58,16 @@ class RedisPusher implements PusherInterface, PusherLoopAwareInterface
      */
     public function push(MessageInterface $message, NotificationInterface $notification, NotificationContextInterface $context)
     {
-        $pipe = $this->client->pipeline();
-        $pipe->lpush($message->getChannel(), json_encode($notification->toArray()));
-        $pipe->incr($message->getChannel() . '-counter');
-        $pipe->execute();
+        if(false !== strpos($message->getChannel(), 'all')){
 
-        $this->eventDispatcher->dispatch(NotificationEvents::NOTIFICATION_PUSHED, new NotificationPushedEvent($message, $notification, $context, $this));
+        }else{
+            $pipe = $this->client->pipeline();
+            $pipe->lpush($message->getChannel(), json_encode($notification->toArray()));
+            $pipe->incr($message->getChannel() . '-counter');
+            $pipe->execute();
+
+            $this->eventDispatcher->dispatch(NotificationEvents::NOTIFICATION_PUSHED, new NotificationPushedEvent($message, $notification, $context, $this));
+        }
     }
 
     /**

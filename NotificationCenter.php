@@ -71,6 +71,6 @@ class NotificationCenter implements NotificationManipulatorInterface
      */
     public function markAsViewed($channel, $uuidOrNotification, $force = false)
     {
-        $this->fetcher->markAsViewed($channel, $uuidOrNotification);
+        $this->fetcher->markAsViewed($channel, $uuidOrNotification, $force);
     }
 }

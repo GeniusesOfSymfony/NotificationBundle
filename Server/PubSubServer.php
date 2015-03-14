@@ -11,6 +11,7 @@ use Gos\Bundle\NotificationBundle\Pusher\PusherLoopAwareInterface;
 use Gos\Bundle\NotificationBundle\Pusher\PusherRegistry;
 use Gos\Bundle\NotificationBundle\Serializer\NotificationContextSerializerInterface;
 use Gos\Bundle\NotificationBundle\Serializer\NotificationSerializerInterface;
+use Gos\Bundle\PubSubRouterBundle\Router\RouterInterface;
 use Gos\Bundle\WebSocketBundle\Event\Events;
 use Gos\Bundle\WebSocketBundle\Event\ServerEvent;
 use Gos\Bundle\WebSocketBundle\Server\Type\ServerInterface;
@@ -51,12 +52,16 @@ class PubSubServer implements ServerInterface
     /** @var array */
     protected $pubSubConfig;
 
+    /** @var RouterInterface */
+    protected $router;
+
     /**
      * @param EventDispatcherInterface               $eventDispatcher
      * @param NotificationSerializerInterface        $notificationSerializer
      * @param NotificationContextSerializerInterface $contextSerializer
      * @param PusherRegistry                         $pusherRegistry
      * @param array                                  $pubSubConfig
+     * @param RouterInterface                        $router
      * @param LoggerInterface                        $logger
      */
     public function __construct(
@@ -65,6 +70,7 @@ class PubSubServer implements ServerInterface
         NotificationContextSerializerInterface $contextSerializer,
         PusherRegistry $pusherRegistry,
         Array $pubSubConfig,
+        RouterInterface $router,
         LoggerInterface $logger = null
     ) {
         $this->logger = $logger;
@@ -73,6 +79,7 @@ class PubSubServer implements ServerInterface
         $this->contextSerializer = $contextSerializer;
         $this->pusherRegistry = $pusherRegistry;
         $this->pubSubConfig = $pubSubConfig;
+        $this->router = $router;
     }
 
     /**
