@@ -1,0 +1,16 @@
+user:
+    channel: notification/user/{username}
+    handler:
+        callback: ['gos.notification.topic']
+    requirements:
+        username:
+            pattern: "[a-zA-Z0-9]+"
+            wildcard: true
+
+notification_rpc:
+    channel: notification/{method}
+    handler:
+        callback: 'gos.notification.rpc'
+    requirements:
+        method:
+            pattern: "[a-z_]+"

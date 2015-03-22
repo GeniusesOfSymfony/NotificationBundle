@@ -46,6 +46,7 @@ class RedisFetcher implements FetcherInterface
      */
     public function fetch($channels, $start, $end)
     {
+        $channels = $this->adaptChannel($channels);
         $notifications = array();
 
         if (is_string($channels)) {
@@ -76,6 +77,8 @@ class RedisFetcher implements FetcherInterface
      */
     public function count($channels, array $options = array())
     {
+        $channels = $this->adaptChannel($channels);
+
         $counter = array();
         $total = 0;
 
@@ -97,6 +100,8 @@ class RedisFetcher implements FetcherInterface
      */
     public function getNotification($channel, $uuid)
     {
+        $channel = $this->adaptChannel($channel);
+
         $index = $this->client->lidxof($channel, 'uuid', $uuid);
 
         if ($index === -1) {
@@ -115,6 +120,8 @@ class RedisFetcher implements FetcherInterface
      */
     public function markAsViewed($channel, $uuidOrNotification, $force = false)
     {
+        $channel = $this->adaptChannel($channel);
+
         if ($uuidOrNotification instanceof NotificationInterface) {
             $uuid = $uuidOrNotification->getUuid();
         } else {
@@ -134,5 +141,16 @@ class RedisFetcher implements FetcherInterface
         $index = $this->client->lidxof($channel, 'uuid', $uuid);
 
         $this->client->lset($channel, $index, $this->serializer->serialize($notification));
+
+        return true;
+    }
+
+    protected function adaptChannel($channel)
+    {
+        if (is_array($channel)) {
+            return array_map([$this, 'adaptChannel'], $channel);
+        }
+
+        return str_replace('/', ':', $channel);
     }
 }

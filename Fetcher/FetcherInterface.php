@@ -40,6 +40,8 @@ interface FetcherInterface
      * @param bool                         $force
      *
      * @throws NotFoundNotificationException
+     *
+     * @return bool
      */
     public function markAsViewed($channel, $uuidOrNotification, $force = false);
 }

@@ -45,6 +45,14 @@ services:
 #        tags:
 #            - { name: gos_notification.pusher }
 
+    gos_notification.notification.procedure:
+        class: Gos\Bundle\NotificationBundle\Procedure\NotificationProcedure
+        arguments:
+            - @gos_notification.notification_center
+            - @gos_web_socket.client_storage
+        tags:
+            - { name: gos_web_socket.rpc }
+
     gos_notification.fetcher.redis:
         class: Gos\Bundle\NotificationBundle\Fetcher\RedisFetcher
         arguments:

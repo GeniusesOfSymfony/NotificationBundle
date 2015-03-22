@@ -8,7 +8,7 @@ Allow to use multiple pusher like websocket or redis. The notification system is
 
 How it work
 -----------
-
+ 
 ![diagram.png](diagram.png)
 
 **More documentation will coming soon**

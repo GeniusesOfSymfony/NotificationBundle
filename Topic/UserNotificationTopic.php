@@ -2,6 +2,7 @@
 
 namespace Gos\Bundle\NotificationBundle\Topic;
 
+use Gos\Bundle\WebSocketBundle\Router\WampRequest;
 use Gos\Bundle\WebSocketBundle\Topic\TopicInterface;
 use Ratchet\ConnectionInterface;
 use Ratchet\Wamp\Topic;
@@ -12,7 +13,7 @@ class UserNotificationTopic implements TopicInterface
      * @param ConnectionInterface $connection
      * @param Topic               $topic
      */
-    public function onSubscribe(ConnectionInterface $connection, Topic $topic)
+    public function onSubscribe(ConnectionInterface $connection, Topic $topic, WampRequest $request)
     {
         //nothing
     }
@@ -21,7 +22,7 @@ class UserNotificationTopic implements TopicInterface
      * @param ConnectionInterface $connection
      * @param Topic               $topic
      */
-    public function onUnSubscribe(ConnectionInterface $connection, Topic $topic)
+    public function onUnSubscribe(ConnectionInterface $connection, Topic $topic, WampRequest $request)
     {
         //nothing
     }
@@ -33,7 +34,7 @@ class UserNotificationTopic implements TopicInterface
      * @param array               $exclude
      * @param array               $eligible
      */
-    public function onPublish(ConnectionInterface $connection, Topic $topic, $event, array $exclude, array $eligible)
+    public function onPublish(ConnectionInterface $connection, Topic $topic, WampRequest $request, $event, array $exclude, array $eligible)
     {
         $topic->broadcast(json_decode($event, true), $exclude, $eligible);
     }
@@ -41,8 +42,8 @@ class UserNotificationTopic implements TopicInterface
     /**
      * @return string
      */
-    public function getPrefix()
+    public function getName()
     {
-        return 'notification';
+        return 'gos.notification.topic';
     }
 }
