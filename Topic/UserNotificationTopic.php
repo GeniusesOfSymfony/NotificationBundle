@@ -36,7 +36,7 @@ class UserNotificationTopic implements TopicInterface
      */
     public function onPublish(ConnectionInterface $connection, Topic $topic, WampRequest $request, $event, array $exclude, array $eligible)
     {
-        $topic->broadcast(json_decode($event, true), $exclude, $eligible);
+        $topic->broadcast($event, $exclude, $eligible);
     }
 
     /**

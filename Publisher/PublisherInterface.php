@@ -1,4 +1,5 @@
 <?php
+
 namespace Gos\Bundle\NotificationBundle\Publisher;
 
 use Gos\Bundle\NotificationBundle\Context\NotificationContextInterface;

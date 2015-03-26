@@ -1,7 +1,7 @@
 user:
     channel: notification/user/{username}
     handler:
-        callback: ['gos.notification.topic']
+        callback: 'gos.notification.topic'
     requirements:
         username:
             pattern: "[a-zA-Z0-9]+"

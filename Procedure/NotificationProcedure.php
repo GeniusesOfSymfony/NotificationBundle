@@ -4,6 +4,7 @@ namespace Gos\Bundle\NotificationBundle\Procedure;
 
 use Gos\Bundle\NotificationBundle\NotificationCenter;
 use Gos\Bundle\WebSocketBundle\Client\ClientStorage;
+use Gos\Bundle\WebSocketBundle\Router\WampRequest;
 use Gos\Bundle\WebSocketBundle\RPC\RpcInterface;
 use Gos\Bundle\WebSocketBundle\RPC\RpcResponse;
 use Ratchet\ConnectionInterface;
@@ -36,7 +37,7 @@ class NotificationProcedure implements RpcInterface
      *
      * @return RpcResponse
      */
-    public function fetch(ConnectionInterface $conn, $params)
+    public function fetch(ConnectionInterface $conn, WampRequest $request, $params)
     {
         $channel = $params['channel'];
         $start = $params['start'];
@@ -51,7 +52,7 @@ class NotificationProcedure implements RpcInterface
      *
      * @return RpcResponse
      */
-    public function count(ConnectionInterface $conn, Array $params)
+    public function count(ConnectionInterface $conn, WampRequest $request, Array $params)
     {
         $channels = $params['channels'];
         $options = $params['options'];
@@ -65,7 +66,7 @@ class NotificationProcedure implements RpcInterface
      *
      * @return RpcResponse
      */
-    public function getNotification(ConnectionInterface $conn, Array $params)
+    public function getNotification(ConnectionInterface $conn, WampRequest $request, Array $params)
     {
         $channel = $params['channel'];
         $uuid = $params['uuid'];
@@ -79,7 +80,7 @@ class NotificationProcedure implements RpcInterface
      *
      * @return RpcResponse
      */
-    public function markAsViewed(ConnectionInterface $conn, Array $params)
+    public function markAsViewed(ConnectionInterface $conn, WampRequest $request, Array $params)
     {
         $channel = $params['channel'];
         $uuid = $params['uuid'];

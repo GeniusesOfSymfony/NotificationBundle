@@ -20,7 +20,7 @@ class PusherCompilerPass implements CompilerPassInterface
         $taggedServices = $container->findTaggedServiceIds('gos_notification.pusher');
 
         foreach ($taggedServices as $id => $attributes) {
-            $definition->addMethodCall('addPusher', [ new Reference($id)]);
+            $definition->addMethodCall('addPusher', [new Reference($id)]);
         }
     }
 }
