@@ -73,3 +73,6 @@ services:
         class: Gos\Bundle\NotificationBundle\Serializer\NotificationContextSerializer
         arguments:
             - %gos_notification.notification_context_class%
+
+    gos_notification.loader.resolver:
+        class: Gos\Bundle\NotificationBundle\Loader\LoaderResolver
