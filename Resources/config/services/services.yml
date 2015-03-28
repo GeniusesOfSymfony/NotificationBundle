@@ -15,8 +15,13 @@ services:
             - %gos_notification.pubsub_server.config%
             - @gos_pubsub_router.router
             - @?monolog.logger.notification
+
+    gos_notification.pubsub_server.command:
+        class: Gos\Bundle\NotificationBundle\Command\ServerCommand
+        arguments:
+            - @gos_notification.notification.pubsub.server
         tags:
-            - { name: gos_web_socket.server }
+            - { name: console.command }
 
     gos_notification.notification.listener:
         class: Gos\Bundle\NotificationBundle\Listener\NotificationListener
