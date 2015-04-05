@@ -2,7 +2,6 @@
 
 namespace Gos\Bundle\NotificationBundle;
 
-use Gos\Bundle\NotificationBundle\DependencyInjection\CompilerPass\LoaderCompilerPass;
 use Gos\Bundle\NotificationBundle\DependencyInjection\CompilerPass\PusherCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -18,6 +17,5 @@ class GosNotificationBundle extends Bundle
     public function build(ContainerBuilder $container)
     {
         $container->addCompilerPass(new PusherCompilerPass());
-        $container->addCompilerPass(new LoaderCompilerPass());
     }
 }

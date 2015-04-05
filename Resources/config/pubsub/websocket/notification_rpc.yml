@@ -1,0 +1,7 @@
+get_notification:
+    channel: notification/{method}
+    handler:
+        callback: 'gos.notification.rpc'
+    requirements:
+        method:
+            pattern: "[a-z_]+"

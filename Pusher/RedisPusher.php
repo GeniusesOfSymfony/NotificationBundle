@@ -70,16 +70,6 @@ class RedisPusher implements PusherInterface, PusherLoopAwareInterface
     }
 
     /**
-     * @return array
-     */
-    public function getChannelsListened()
-    {
-        return array(
-            'psubscribe' => array('notification:user:*'),
-        );
-    }
-
-    /**
      * @return string
      */
     public function getAlias()

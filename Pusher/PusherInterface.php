@@ -19,9 +19,4 @@ interface PusherInterface
      * @param NotificationContextInterface $context
      */
     public function push(MessageInterface $message, NotificationInterface $notification, NotificationContextInterface $context);
-
-    /**
-     * @return array
-     */
-    public function getChannelsListened();
 }

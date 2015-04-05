@@ -45,16 +45,6 @@ class WebsocketPusher implements PusherInterface
     }
 
     /**
-     * @return array
-     */
-    public function getChannelsListened()
-    {
-        return array(
-            'psubscribe' => array('notification:user:*', 'notification:application:*'),
-        );
-    }
-
-    /**
      * @return string
      */
     public function getAlias()

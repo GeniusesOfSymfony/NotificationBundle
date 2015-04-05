@@ -1,4 +1,4 @@
-user:
+user_notification_websocket:
     channel: notification/user/{username}
     handler:
         callback: 'gos.notification.topic'
@@ -6,11 +6,3 @@ user:
         username:
             pattern: "[a-zA-Z0-9]+"
             wildcard: true
-
-notification_rpc:
-    channel: notification/{method}
-    handler:
-        callback: 'gos.notification.rpc'
-    requirements:
-        method:
-            pattern: "[a-z_]+"

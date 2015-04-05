@@ -9,6 +9,7 @@ use Gos\Bundle\NotificationBundle\Model\Message\PatternMessage;
 use Gos\Bundle\NotificationBundle\Pusher\PusherInterface;
 use Gos\Bundle\NotificationBundle\Pusher\PusherLoopAwareInterface;
 use Gos\Bundle\NotificationBundle\Pusher\PusherRegistry;
+use Gos\Bundle\NotificationBundle\Router\Dumper\RedisDumper;
 use Gos\Bundle\NotificationBundle\Serializer\NotificationContextSerializerInterface;
 use Gos\Bundle\NotificationBundle\Serializer\NotificationSerializerInterface;
 use Gos\Bundle\PubSubRouterBundle\Router\RouterInterface;
@@ -55,6 +56,9 @@ class PubSubServer implements ServerInterface
     /** @var RouterInterface */
     protected $router;
 
+    /** @var RedisDumper */
+    protected $redisDumper;
+
     /**
      * @param EventDispatcherInterface               $eventDispatcher
      * @param NotificationSerializerInterface        $notificationSerializer
@@ -71,6 +75,7 @@ class PubSubServer implements ServerInterface
         PusherRegistry $pusherRegistry,
         Array $pubSubConfig,
         RouterInterface $router,
+        RedisDumper $redisDumper,
         LoggerInterface $logger = null
     ) {
         $this->logger = $logger;
@@ -79,41 +84,8 @@ class PubSubServer implements ServerInterface
         $this->contextSerializer = $contextSerializer;
         $this->pusherRegistry = $pusherRegistry;
         $this->pubSubConfig = $pubSubConfig;
+        $this->redisDumper = $redisDumper;
         $this->router = $router;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getChannelToListen()
-    {
-        $psubscribe = array();
-        $subscribe = array();
-
-        foreach ($this->pusherRegistry->getPushers() as $pusher) {
-            $channels = $pusher->getChannelsListened();
-
-            if (isset($channels['subscribe'])) {
-                foreach ($channels['subscribe'] as $s) {
-                    if (!in_array($s, $subscribe)) {
-                        $subscribe[] = $s;
-                    }
-                }
-            }
-
-            if (isset($channels['psubscribe'])) {
-                foreach ($channels['psubscribe'] as $ps) {
-                    if (!in_array($ps, $psubscribe)) {
-                        $psubscribe[] = $ps;
-                    }
-                }
-            }
-        }
-
-        return array(
-            'subscribe' => $subscribe,
-            'psubscribe' => $psubscribe,
-        );
     }
 
     /**
@@ -129,7 +101,7 @@ class PubSubServer implements ServerInterface
         $this->client = new Client('tcp://' . $this->getAddress(), $this->loop);
 
         $this->client->connect(function () {
-            $subscription = $this->getChannelToListen();
+            $subscription = $this->redisDumper->dump();
 
             if (null !== $this->logger) {
                 if (!empty($subscription['subscribe'])) {

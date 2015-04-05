@@ -13,7 +13,8 @@ services:
             - @gos_notification.notification_context.serializer
             - @gos_notification.pusher.registry
             - %gos_notification.pubsub_server.config%
-            - @gos_pubsub_router.router
+            - @gos_pubsub_router.redis
+            - @gos_notification.notification.redis.dumper
             - @?monolog.logger.notification
 
     gos_notification.pubsub_server.command:
@@ -36,6 +37,7 @@ services:
 
     gos_notification.pusher.redis:
         class: Gos\Bundle\NotificationBundle\Pusher\RedisPusher
+        public: false
         arguments:
             - @snc_redis.notification
             - @event_dispatcher
@@ -44,6 +46,7 @@ services:
 
     gos_notification.pusher.websocket:
         class: Gos\Bundle\NotificationBundle\Pusher\WebsocketPusher
+        public: false
         arguments:
             - %web_socket_server.host%
             - %web_socket_server.port%
@@ -79,5 +82,10 @@ services:
         arguments:
             - %gos_notification.notification_context_class%
 
-    gos_notification.loader.resolver:
-        class: Gos\Bundle\NotificationBundle\Loader\LoaderResolver
+    gos_notification.notification.redis.dumper:
+        class: Gos\Bundle\NotificationBundle\Router\Dumper\RedisDumper
+        public: false
+        arguments:
+            - @gos_pubsub_router.collection.redis
+            - @gos_pubsub_router.generator
+            - @gos_pubsub_router.tokenizer

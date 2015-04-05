@@ -1,0 +1,8 @@
+user_notification:
+    channel: notification:user:{username}
+    handler:
+        callback: ['gos_redis', 'gos_websocket']
+    requirements:
+        username:
+            pattern: "[a-zA-Z0-9]+"
+            wildcard: true
