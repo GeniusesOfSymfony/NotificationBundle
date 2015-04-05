@@ -10,6 +10,7 @@ use Gos\Bundle\NotificationBundle\Pusher\PusherInterface;
 use Gos\Bundle\NotificationBundle\Pusher\PusherLoopAwareInterface;
 use Gos\Bundle\NotificationBundle\Pusher\PusherRegistry;
 use Gos\Bundle\NotificationBundle\Router\Dumper\RedisDumper;
+use Gos\Bundle\PubSubRouterBundle\Request\PubSubRequest;
 use Gos\Bundle\NotificationBundle\Serializer\NotificationContextSerializerInterface;
 use Gos\Bundle\NotificationBundle\Serializer\NotificationSerializerInterface;
 use Gos\Bundle\PubSubRouterBundle\Router\RouterInterface;
@@ -151,19 +152,34 @@ class PubSubServer implements ServerInterface
                     );
                 }
 
-                list($notificationRaw, $contextRaw) = json_decode($message->getPayload(), true);
+                $decodedMessage = json_decode($message->getPayload(), true);
 
-                $notification = $this->notificationSerializer->deserialize(json_encode($notificationRaw));
+                $notification = $this->notificationSerializer->deserialize(json_encode($decodedMessage['notification']));
 
-                $context = $this->contextSerializer->deserialize(json_encode($contextRaw));
+                if(isset($decodedMessage['context'])){
+                    $context = $this->contextSerializer->deserialize(json_encode($decodedMessage['context']));
+                }else{
+                    $context = null;
+                }
 
                 if (null !== $this->logger) {
                     $this->logger->info('process notification');
                 }
 
-                $pushers = $this->pusherRegistry->getPushers($context->getPushers());
+                $matched = $this->router->match($message->getChannel());
+                $request = new PubSubRequest($matched[0], $matched[1], $matched[2]);
 
-                $this->eventDispatcher->dispatch(NotificationEvents::NOTIFICATION_PUBLISHED, new NotificationPublishedEvent($message, $notification, $context));
+                if(null !== $this->logger){
+                    $this->logger->info(sprintf(
+                        'Route %s matched with [%s]',
+                        $request->getRouteName(),
+                        implode(', ', array_map(function ($v, $k) { return sprintf("%s='%s'", $k, $v); }, $request->getAttributes()->all(), array_keys($request->getAttributes()->all())))
+                    ));
+                }
+
+                $pushers = $this->pusherRegistry->getPushers($request->getRoute()->getCallback());
+
+                $this->eventDispatcher->dispatch(NotificationEvents::NOTIFICATION_PUBLISHED, new NotificationPublishedEvent($message, $notification, $context, $request));
 
                 /** @var PusherInterface $pusher */
                 foreach ($pushers as $pusher) {
@@ -171,7 +187,7 @@ class PubSubServer implements ServerInterface
                         $pusher->setLoop($this->loop);
                     }
 
-                    $pusher->push($message, $notification, $context);
+                    $pusher->push($message, $notification, $request, $context);
                 }
 
                 if (null !== $this->logger) {

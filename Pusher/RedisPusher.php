@@ -7,6 +7,7 @@ use Gos\Bundle\NotificationBundle\Event\NotificationEvents;
 use Gos\Bundle\NotificationBundle\Event\NotificationPushedEvent;
 use Gos\Bundle\NotificationBundle\Model\Message\MessageInterface;
 use Gos\Bundle\NotificationBundle\Model\NotificationInterface;
+use Gos\Bundle\PubSubRouterBundle\Request\PubSubRequest;
 use Predis\Client;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -52,25 +53,28 @@ class RedisPusher implements PusherInterface, PusherLoopAwareInterface
     }
 
     /**
-     * @param MessageInterface             $message
-     * @param NotificationInterface        $notification
-     * @param NotificationContextInterface $context
+     * {@inheritdoc}
      */
-    public function push(MessageInterface $message, NotificationInterface $notification, NotificationContextInterface $context)
-    {
+    public function push(
+        MessageInterface $message,
+        NotificationInterface $notification,
+        PubSubRequest $request,
+        NotificationContextInterface $context = null
+    ) {
         if (false !== strpos($message->getChannel(), 'all')) {
+
         } else {
             $pipe = $this->client->pipeline();
             $pipe->lpush($message->getChannel(), json_encode($notification->toArray()));
             $pipe->incr($message->getChannel() . '-counter');
             $pipe->execute();
 
-            $this->eventDispatcher->dispatch(NotificationEvents::NOTIFICATION_PUSHED, new NotificationPushedEvent($message, $notification, $context, $this));
+            $this->eventDispatcher->dispatch(NotificationEvents::NOTIFICATION_PUSHED, new NotificationPushedEvent($message, $notification, $request, $context, $this));
         }
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getAlias()
     {

@@ -13,4 +13,10 @@ How it work
  
 ![diagram.png](diagram.png)
 
-**More documentation will coming soon**
+Screenshot
+----------
+
+![screen.png](screen.png)
+
+
+**More documentation will coming soon** 

@@ -5,6 +5,7 @@ namespace Gos\Bundle\NotificationBundle\Pusher;
 use Gos\Bundle\NotificationBundle\Context\NotificationContextInterface;
 use Gos\Bundle\NotificationBundle\Model\Message\MessageInterface;
 use Gos\Bundle\NotificationBundle\Model\NotificationInterface;
+use Gos\Bundle\PubSubRouterBundle\Request\PubSubRequest;
 use Gos\Component\WebSocketClient\Wamp\Client;
 
 class WebsocketPusher implements PusherInterface
@@ -32,11 +33,9 @@ class WebsocketPusher implements PusherInterface
     }
 
     /**
-     * @param MessageInterface             $message
-     * @param NotificationInterface        $notification
-     * @param NotificationContextInterface $context
+     * {@inheritdoc}
      */
-    public function push(MessageInterface $message, NotificationInterface $notification, NotificationContextInterface $context)
+    public function push(MessageInterface $message, NotificationInterface $notification, PubSubRequest $request, NotificationContextInterface $context = null)
     {
         $socket = new Client($this->serverHost, $this->serverPort);
         $sessionId = $socket->connect('/');
@@ -45,7 +44,7 @@ class WebsocketPusher implements PusherInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getAlias()
     {

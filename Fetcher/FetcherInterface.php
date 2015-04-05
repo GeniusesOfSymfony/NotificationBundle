@@ -14,28 +14,48 @@ interface FetcherInterface
      *
      * @return NotificationInterface[]|array
      */
-    public function fetch($channels, $start, $end);
+    public function fetch($routeName, array $routeParameters = [], $start, $end);
 
     /**
-     * @param string|string[] $channels
+     * @param array $routes
+     * @param int      $start
+     * @param int      $end
+     *
+     * @return array
+     */
+    public function multipleFetch(array $routes, $start, $end);
+
+    /**
+     * @param string $routeName
+     * @param string[] $routeParameters
      * @param array           $options
      *
      * @return int
      */
-    public function count($channels, array $options = array());
+    public function count($routeName, array $routeParameters, array $options = []);
 
     /**
-     * @param string $channel
+     * @param array $routes
+     * @param array $options
+     *
+     * @return array
+     */
+    public function multipleCount(array $routes, array $options = []);
+
+    /**
+     * @param string $routeName
+     * @param string[] $routeParameters
      * @param string $uuid
      *
      * @return NotificationInterface
      *
      * @throws NotFoundNotificationException
      */
-    public function getNotification($channel, $uuid);
+    public function getNotification($routeName, array $routeParameters = [], $uuid);
 
     /**
-     * @param string                       $channel
+     * @param string                       $routeName
+     * @param string[]                     $routeParameters
      * @param string|NotificationInterface $uuidOrNotification
      * @param bool                         $force
      *
@@ -43,5 +63,5 @@ interface FetcherInterface
      *
      * @return bool
      */
-    public function markAsViewed($channel, $uuidOrNotification, $force = false);
+    public function markAsViewed($routeName, array $routeParameters = [], $uuidOrNotification, $force = false);
 }

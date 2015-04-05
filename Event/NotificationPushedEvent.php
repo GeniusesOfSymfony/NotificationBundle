@@ -6,6 +6,7 @@ use Gos\Bundle\NotificationBundle\Context\NotificationContextInterface;
 use Gos\Bundle\NotificationBundle\Model\Message\MessageInterface;
 use Gos\Bundle\NotificationBundle\Model\NotificationInterface;
 use Gos\Bundle\NotificationBundle\Pusher\PusherInterface;
+use Gos\Bundle\PubSubRouterBundle\Request\PubSubRequest;
 use Symfony\Component\EventDispatcher\Event;
 
 class NotificationPushedEvent extends Event
@@ -21,7 +22,7 @@ class NotificationPushedEvent extends Event
     protected $notification;
 
     /**
-     * @var NotificationContextInterface
+     * @var NotificationContextInterface|null
      */
     protected $context;
 
@@ -30,16 +31,21 @@ class NotificationPushedEvent extends Event
      */
     protected $pusher;
 
+    /** @var PubSubRequest */
+    protected $request;
+
     /**
      * @param MessageInterface             $message
      * @param NotificationInterface        $notification
-     * @param NotificationContextInterface $context
+     * @param PubSubRequest                $request
+     * @param NotificationContextInterface|null $context
      * @param PusherInterface              $pusher
      */
     public function __construct(
         MessageInterface $message,
         NotificationInterface $notification,
-        NotificationContextInterface $context,
+        PubSubRequest $request,
+        NotificationContextInterface $context = null,
         PusherInterface $pusher
     ) {
         $this->message = $message;
@@ -78,5 +84,13 @@ class NotificationPushedEvent extends Event
     public function getPusher()
     {
         return $this->pusher;
+    }
+
+    /**
+     * @return PubSubRequest
+     */
+    public function getRequest()
+    {
+        return $this->request;
     }
 }

@@ -5,6 +5,7 @@ namespace Gos\Bundle\NotificationBundle\Event;
 use Gos\Bundle\NotificationBundle\Context\NotificationContextInterface;
 use Gos\Bundle\NotificationBundle\Model\Message\MessageInterface;
 use Gos\Bundle\NotificationBundle\Model\NotificationInterface;
+use Gos\Bundle\PubSubRouterBundle\Request\PubSubRequest;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -18,7 +19,7 @@ class NotificationPublishedEvent extends Event
     protected $notification;
 
     /**
-     * @var NotificationContextInterface
+     * @var NotificationContextInterface|null
      */
     protected $context;
 
@@ -27,19 +28,25 @@ class NotificationPublishedEvent extends Event
      */
     protected $message;
 
+    /** @var  PubSubRequest */
+    protected $request;
+
     /**
      * @param MessageInterface             $message
      * @param NotificationInterface        $notification
-     * @param NotificationContextInterface $context
+     * @param NotificationContextInterface|null $context
+     * @param PubSubRequest                $request
      */
     public function __construct(
         MessageInterface $message,
         NotificationInterface $notification,
-        NotificationContextInterface $context
+        NotificationContextInterface $context = null,
+        PubSubRequest $request
     ) {
         $this->message = $message;
         $this->notification = $notification;
         $this->context = $context;
+        $this->request = $request;
     }
 
     /**
@@ -64,5 +71,13 @@ class NotificationPublishedEvent extends Event
     public function getMessage()
     {
         return $this->message;
+    }
+
+    /**
+     * @return PubSubRequest
+     */
+    public function getRequest()
+    {
+        return $this->request;
     }
 }

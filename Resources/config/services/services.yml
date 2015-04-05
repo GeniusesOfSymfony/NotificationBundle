@@ -64,13 +64,16 @@ services:
     gos_notification.fetcher.redis:
         class: Gos\Bundle\NotificationBundle\Fetcher\RedisFetcher
         arguments:
+            - @gos_pubsub_router.redis
             - @snc_redis.notification
             - @gos_notification.notification.serializer
 
     gos_notification.publisher.redis:
         class: Gos\Bundle\NotificationBundle\Publisher\RedisPublisher
         arguments:
+            - @gos_pubsub_router.redis
             - @snc_redis.notification
+            - @?monolog.logger.notification
 
     gos_notification.notification.serializer:
         class: Gos\Bundle\NotificationBundle\Serializer\NotificationSerializer
