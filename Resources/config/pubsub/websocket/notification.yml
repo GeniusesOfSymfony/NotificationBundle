@@ -1,4 +1,4 @@
-user_notification_websocket:
+user_notification:
     channel: notification/user/{username}
     handler:
         callback: 'gos.notification.topic'

@@ -2,7 +2,24 @@ user_notification:
     channel: notification:user:{username}
     handler:
         callback: ['gos_redis', 'gos_websocket']
+        args:
+            username: @app.user.notification.processor
     requirements:
         username:
+            pattern: "[a-zA-Z0-9]+"
+            wildcard: true
+
+user_application_notification:
+    channel: notification:{application}:{username}
+    handler:
+        callback: ['gos_redis']
+        args:
+            application: @app.application.notification.processor
+            username: @app.user.notification.processor
+    requirements:
+        username:
+            pattern: "[a-zA-Z0-9]+"
+            wildcard: true
+        application:
             pattern: "[a-zA-Z0-9]+"
             wildcard: true

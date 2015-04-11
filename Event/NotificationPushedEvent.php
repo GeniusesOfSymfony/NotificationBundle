@@ -35,11 +35,11 @@ class NotificationPushedEvent extends Event
     protected $request;
 
     /**
-     * @param MessageInterface             $message
-     * @param NotificationInterface        $notification
-     * @param PubSubRequest                $request
+     * @param MessageInterface                  $message
+     * @param NotificationInterface             $notification
+     * @param PubSubRequest                     $request
      * @param NotificationContextInterface|null $context
-     * @param PusherInterface              $pusher
+     * @param PusherInterface                   $pusher
      */
     public function __construct(
         MessageInterface $message,

@@ -7,5 +7,4 @@ namespace Gos\Bundle\NotificationBundle\Context;
  */
 class NotificationContext implements NotificationContextInterface
 {
-
 }

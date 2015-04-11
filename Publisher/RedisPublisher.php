@@ -26,9 +26,9 @@ class RedisPublisher implements PublisherInterface
     protected $routeGenerator;
 
     /**
-     * @param GeneratorInterface       $routeGenerator
-     * @param Client          $redis
-     * @param LoggerInterface $logger
+     * @param GeneratorInterface $routeGenerator
+     * @param Client             $redis
+     * @param LoggerInterface    $logger
      */
     public function __construct(GeneratorInterface $routeGenerator, Client $redis, LoggerInterface $logger = null)
     {
@@ -55,7 +55,7 @@ class RedisPublisher implements PublisherInterface
         $data = [];
         $data['notification'] = $notification;
 
-        if(null !== $context){
+        if (null !== $context) {
             $data['context'] = $context;
         }
 

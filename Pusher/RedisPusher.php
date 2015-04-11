@@ -3,19 +3,17 @@
 namespace Gos\Bundle\NotificationBundle\Pusher;
 
 use Gos\Bundle\NotificationBundle\Context\NotificationContextInterface;
-use Gos\Bundle\NotificationBundle\Event\NotificationEvents;
-use Gos\Bundle\NotificationBundle\Event\NotificationPushedEvent;
 use Gos\Bundle\NotificationBundle\Model\Message\MessageInterface;
 use Gos\Bundle\NotificationBundle\Model\NotificationInterface;
 use Gos\Bundle\PubSubRouterBundle\Request\PubSubRequest;
+use Gos\Bundle\PubSubRouterBundle\Router\RouteInterface;
+use Gos\Bundle\PubSubRouterBundle\Router\RouterInterface;
 use Predis\Client;
-use React\EventLoop\LoopInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class RedisPusher.
  */
-class RedisPusher implements PusherInterface, PusherLoopAwareInterface
+class RedisPusher extends AbstractPusher
 {
     const ALIAS = 'gos_redis';
 
@@ -25,52 +23,54 @@ class RedisPusher implements PusherInterface, PusherLoopAwareInterface
     protected $client;
 
     /**
-     * @var LoopInterface
+     * @var RouterInterface
      */
-    protected $loop;
+    protected $router;
 
     /**
-     * @var EventDispatcherInterface
+     * @param Client          $client
+     * @param RouterInterface $router
      */
-    protected $eventDispatcher;
-
-    /**
-     * @param Client                   $client
-     * @param EventDispatcherInterface $eventDispatcher
-     */
-    public function __construct(Client $client, EventDispatcherInterface $eventDispatcher)
+    public function __construct(Client $client, RouterInterface $router)
     {
         $this->client = $client;
-        $this->eventDispatcher = $eventDispatcher;
+        $this->router = $router;
     }
 
     /**
-     * @param LoopInterface $loop
+     * @param RouteInterface $route
+     * @param array          $matrix
+     *
+     * @return array
      */
-    public function setLoop(LoopInterface $loop)
+    protected function generateRoutes(RouteInterface $route, array $matrix)
     {
-        $this->loop = $loop;
+        $channels = [];
+        foreach ($this->generateMatrixPermutations($matrix) as $parameters) {
+            $channels[] = $this->router->generate((string) $route, $parameters);
+        }
+
+        return $channels;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function push(
+    protected function doPush(
         MessageInterface $message,
         NotificationInterface $notification,
         PubSubRequest $request,
+        Array $matrix,
         NotificationContextInterface $context = null
     ) {
-        if (false !== strpos($message->getChannel(), 'all')) {
+        $pipe = $this->client->pipeline();
 
-        } else {
-            $pipe = $this->client->pipeline();
-            $pipe->lpush($message->getChannel(), json_encode($notification->toArray()));
-            $pipe->incr($message->getChannel() . '-counter');
-            $pipe->execute();
-
-            $this->eventDispatcher->dispatch(NotificationEvents::NOTIFICATION_PUSHED, new NotificationPushedEvent($message, $notification, $request, $context, $this));
+        foreach ($this->generateRoutes($request->getRoute(), $matrix) as $channel) {
+            $pipe->lpush($channel, json_encode($notification->toArray()));
+            $pipe->incr($channel . '-counter');
         }
+
+        $pipe->execute();
     }
 
     /**

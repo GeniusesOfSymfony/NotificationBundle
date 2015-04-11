@@ -6,13 +6,15 @@ use Gos\Bundle\NotificationBundle\Event\NotificationEvents;
 use Gos\Bundle\NotificationBundle\Event\NotificationPublishedEvent;
 use Gos\Bundle\NotificationBundle\Model\Message\Message;
 use Gos\Bundle\NotificationBundle\Model\Message\PatternMessage;
+use Gos\Bundle\NotificationBundle\Processor\ProcessorInterface;
+use Gos\Bundle\NotificationBundle\Pusher\ProcessorDelegate;
 use Gos\Bundle\NotificationBundle\Pusher\PusherInterface;
 use Gos\Bundle\NotificationBundle\Pusher\PusherLoopAwareInterface;
 use Gos\Bundle\NotificationBundle\Pusher\PusherRegistry;
 use Gos\Bundle\NotificationBundle\Router\Dumper\RedisDumper;
-use Gos\Bundle\PubSubRouterBundle\Request\PubSubRequest;
 use Gos\Bundle\NotificationBundle\Serializer\NotificationContextSerializerInterface;
 use Gos\Bundle\NotificationBundle\Serializer\NotificationSerializerInterface;
+use Gos\Bundle\PubSubRouterBundle\Request\PubSubRequest;
 use Gos\Bundle\PubSubRouterBundle\Router\RouterInterface;
 use Gos\Bundle\WebSocketBundle\Event\Events;
 use Gos\Bundle\WebSocketBundle\Event\ServerEvent;
@@ -23,6 +25,7 @@ use Predis\ResponseError;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -60,6 +63,9 @@ class PubSubServer implements ServerInterface
     /** @var RedisDumper */
     protected $redisDumper;
 
+    /** @var  ContainerInterface */
+    protected $container;
+
     /**
      * @param EventDispatcherInterface               $eventDispatcher
      * @param NotificationSerializerInterface        $notificationSerializer
@@ -77,6 +83,7 @@ class PubSubServer implements ServerInterface
         Array $pubSubConfig,
         RouterInterface $router,
         RedisDumper $redisDumper,
+        ContainerInterface $container,
         LoggerInterface $logger = null
     ) {
         $this->logger = $logger;
@@ -87,6 +94,7 @@ class PubSubServer implements ServerInterface
         $this->pubSubConfig = $pubSubConfig;
         $this->redisDumper = $redisDumper;
         $this->router = $router;
+        $this->container = $container;
     }
 
     /**
@@ -156,9 +164,9 @@ class PubSubServer implements ServerInterface
 
                 $notification = $this->notificationSerializer->deserialize(json_encode($decodedMessage['notification']));
 
-                if(isset($decodedMessage['context'])){
+                if (isset($decodedMessage['context'])) {
                     $context = $this->contextSerializer->deserialize(json_encode($decodedMessage['context']));
-                }else{
+                } else {
                     $context = null;
                 }
 
@@ -169,7 +177,7 @@ class PubSubServer implements ServerInterface
                 $matched = $this->router->match($message->getChannel());
                 $request = new PubSubRequest($matched[0], $matched[1], $matched[2]);
 
-                if(null !== $this->logger){
+                if (null !== $this->logger) {
                     $this->logger->info(sprintf(
                         'Route %s matched with [%s]',
                         $request->getRouteName(),
@@ -177,12 +185,41 @@ class PubSubServer implements ServerInterface
                     ));
                 }
 
-                $pushers = $this->pusherRegistry->getPushers($request->getRoute()->getCallback());
+                $route = $request->getRoute();
+                $pushers = $this->pusherRegistry->getPushers($route->getCallback());
 
                 $this->eventDispatcher->dispatch(NotificationEvents::NOTIFICATION_PUBLISHED, new NotificationPublishedEvent($message, $notification, $context, $request));
 
                 /** @var PusherInterface $pusher */
                 foreach ($pushers as $pusher) {
+                    if ($pusher instanceof ProcessorDelegate && count($route->getArgs()) >= 1) {
+                        $args = $route->getArgs();
+
+                        foreach ($args as $attributeName => $processorService) {
+                            if (!in_array($attributeName, $availableAttributes = array_keys($request->getAttributes()->all()))) {
+                                throw new \Exception(sprintf(
+                                    'Undefined attribute %s, available are [%s]',
+                                    $attributeName,
+                                    $availableAttributes
+                                ));
+                            }
+
+                            if ('@' !== $processorService{0}) {
+                                throw new \Exception(sprintf(
+                                    'Your processor service must start with "@"'
+                                ));
+                            }
+
+                            $processor = $this->container->get(ltrim($processorService, '@'));
+
+                            if (!$processor instanceof ProcessorInterface) {
+                                throw new \Exception('Processor class must implement ProcessorInterface !');
+                            }
+
+                            call_user_func([$pusher, 'addProcessor'], $attributeName, $processor);
+                        }
+                    }
+
                     if ($pusher instanceof PusherLoopAwareInterface) {
                         $pusher->setLoop($this->loop);
                     }

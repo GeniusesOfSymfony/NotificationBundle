@@ -62,7 +62,7 @@ class RedisFetcher implements FetcherInterface
     {
         $channels = [];
 
-        foreach($routes as $routeName => $routeParameters){
+        foreach ($routes as $routeName => $routeParameters) {
             $channels[] = $this->routeGenerator->generate($routeName, $routeParameters);
         }
 
@@ -148,6 +148,7 @@ class RedisFetcher implements FetcherInterface
      * @param string $uuid
      *
      * @return NotificationInterface
+     *
      * @throws NotFoundNotificationException
      */
     protected function doGetNotification($channel, $uuid)
@@ -190,9 +191,9 @@ class RedisFetcher implements FetcherInterface
 
         $index = $this->client->lidxof($channel, 'uuid', $uuid);
 
-        $this->client->pipeline(function($pipe) use ($channel, $index, $notification) {
+        $this->client->pipeline(function ($pipe) use ($channel, $index, $notification) {
             $pipe->lset($channel, $index, $this->serializer->serialize($notification));
-            $pipe->decr($channel.'-counter');
+            $pipe->decr($channel . '-counter');
         });
 
         return true;

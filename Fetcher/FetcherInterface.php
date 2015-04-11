@@ -18,17 +18,17 @@ interface FetcherInterface
 
     /**
      * @param array $routes
-     * @param int      $start
-     * @param int      $end
+     * @param int   $start
+     * @param int   $end
      *
      * @return array
      */
     public function multipleFetch(array $routes, $start, $end);
 
     /**
-     * @param string $routeName
+     * @param string   $routeName
      * @param string[] $routeParameters
-     * @param array           $options
+     * @param array    $options
      *
      * @return int
      */
@@ -43,9 +43,9 @@ interface FetcherInterface
     public function multipleCount(array $routes, array $options = []);
 
     /**
-     * @param string $routeName
+     * @param string   $routeName
      * @param string[] $routeParameters
-     * @param string $uuid
+     * @param string   $uuid
      *
      * @return NotificationInterface
      *

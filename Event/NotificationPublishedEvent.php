@@ -32,10 +32,10 @@ class NotificationPublishedEvent extends Event
     protected $request;
 
     /**
-     * @param MessageInterface             $message
-     * @param NotificationInterface        $notification
+     * @param MessageInterface                  $message
+     * @param NotificationInterface             $notification
      * @param NotificationContextInterface|null $context
-     * @param PubSubRequest                $request
+     * @param PubSubRequest                     $request
      */
     public function __construct(
         MessageInterface $message,

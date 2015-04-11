@@ -15,9 +15,9 @@ interface PusherInterface
     public function getAlias();
 
     /**
-     * @param MessageInterface             $message
-     * @param NotificationInterface        $notification
-     * @param PubSubRequest                $request
+     * @param MessageInterface                  $message
+     * @param NotificationInterface             $notification
+     * @param PubSubRequest                     $request
      * @param NotificationContextInterface|null $context
      *
      * @return mixed

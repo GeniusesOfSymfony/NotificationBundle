@@ -52,6 +52,7 @@ class RedisDumper
 
         /** @var RouteInterface $route */
         foreach ($this->routeCollection as $routeName => $route) {
+            $route->setName($routeName);
             $tokens = $this->tokenizer->tokenize($route, $tokenSeparator);
 
             if (false === $tokens) {

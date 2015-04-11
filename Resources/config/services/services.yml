@@ -15,6 +15,7 @@ services:
             - %gos_notification.pubsub_server.config%
             - @gos_pubsub_router.redis
             - @gos_notification.notification.redis.dumper
+            - @service_container
             - @?monolog.logger.notification
 
     gos_notification.pubsub_server.command:
@@ -35,21 +36,31 @@ services:
     gos_notification.pusher.registry:
         class: Gos\Bundle\NotificationBundle\Pusher\PusherRegistry
 
+    gos_notification.pusher.abstract:
+        class: Gos\Bundle\NotificationBundle\Pusher\AbstractPusher
+        abstract: true
+        public: false
+        calls:
+            - [ setEventDispatcher, [ @event_dispatcher ] ]
+
     gos_notification.pusher.redis:
         class: Gos\Bundle\NotificationBundle\Pusher\RedisPusher
         public: false
+        parent: gos_notification.pusher.abstract
         arguments:
             - @snc_redis.notification
-            - @event_dispatcher
+            - @gos_pubsub_router.redis
 #        tags:
 #            - { name: gos_notification.pusher }
 
     gos_notification.pusher.websocket:
         class: Gos\Bundle\NotificationBundle\Pusher\WebsocketPusher
         public: false
+        parent: gos_notification.pusher.abstract
         arguments:
             - %web_socket_server.host%
             - %web_socket_server.port%
+            - @gos_pubsub_router.websocket
 #        tags:
 #            - { name: gos_notification.pusher }
 
