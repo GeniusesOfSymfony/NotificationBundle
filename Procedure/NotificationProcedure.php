@@ -39,11 +39,11 @@ class NotificationProcedure implements RpcInterface
      */
     public function fetch(ConnectionInterface $conn, WampRequest $request, $params)
     {
-        $channel = $params['channel'];
         $start = $params['start'];
         $end = $params['end'];
+        $route = $params['route'];
 
-        return new RpcResponse($this->notificationCenter->fetch($channel, $start, $end));
+        return new RpcResponse($this->notificationCenter->fetch($route['name'], $route['parameters'], $start, $end));
     }
 
     /**
