@@ -27,8 +27,18 @@ Development
 ----------
 
 ```cmd
-npm install --dev
-npm run watchify
+gulp //watch by default
+gulp watch //watch less & coffee
+gulp less //compile less
+gulp browserify //compile angular coffee app
+gulp serve //compile browersify and less
+```
+
+Production
+----------
+
+```cmd
+gulp serve --production //use it also when you commit dist folder for PR to update properly files.
 ```
 
 **This is currently in progress, there are still a lot of work !**

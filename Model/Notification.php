@@ -8,7 +8,7 @@ namespace Gos\Bundle\NotificationBundle\Model;
 class Notification implements NotificationInterface
 {
     const TYPE_INFO = 'info';
-    const TYPE_DANGER = 'danger';
+    const TYPE_ERROR = 'error';
     const TYPE_SUCCESS = 'success';
     const TYPE_WARNING = 'warning';
 
@@ -33,11 +33,80 @@ class Notification implements NotificationInterface
     /** @var  string */
     protected $content;
 
+    /** @var  string */
+    protected $link;
+
+    /** @var  array */
+    protected $extra;
+
+    /** @var  int */
+    protected $timeout;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->uuid = $this->generateUuid();
+        $this->extra = [];
+        $this->timeout = 5000;
     }
+
+    /**
+     * @param $key
+     * @param $value
+     */
+    public function addExtra($key, $value)
+    {
+        $this->extra[$key] = $value;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLink()
+    {
+        return $this->link;
+    }
+
+    /**
+     * @param string $link
+     */
+    public function setLink($link)
+    {
+        $this->link = $link;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExtra()
+    {
+        return $this->extra;
+    }
+
+    /**
+     * @param array $extra
+     */
+    public function setExtra($extra)
+    {
+        $this->extra = $extra;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimeout()
+    {
+        return $this->timeout;
+    }
+
+    /**
+     * @param int $timeout
+     */
+    public function setTimeout($timeout)
+    {
+        $this->timeout = $timeout;
+    }
+
 
     /**
      * UUID v4.
@@ -190,6 +259,9 @@ class Notification implements NotificationInterface
             'created_at' => $this->createdAt->format(\DateTime::W3C),
             'content' => $this->content,
             'title' => $this->title,
+            'link' => $this->link,
+            'extra' => $this->extra,
+            'timeout' => $this->timeout
         );
     }
 
