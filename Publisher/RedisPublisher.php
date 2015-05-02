@@ -7,6 +7,7 @@ use Gos\Bundle\NotificationBundle\Model\NotificationInterface;
 use Gos\Bundle\PubSubRouterBundle\Generator\GeneratorInterface;
 use Predis\Client;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class RedisPublisher implements PublisherInterface
 {
@@ -21,36 +22,28 @@ class RedisPublisher implements PublisherInterface
     protected $logger;
 
     /**
-     * @var GeneratorInterface
-     */
-    protected $routeGenerator;
-
-    /**
-     * @param GeneratorInterface $routeGenerator
      * @param Client             $redis
      * @param LoggerInterface    $logger
      */
-    public function __construct(GeneratorInterface $routeGenerator, Client $redis, LoggerInterface $logger = null)
+    public function __construct(Client $redis, LoggerInterface $logger = null)
     {
-        $this->routeGenerator = $routeGenerator;
         $this->redis = $redis;
-        $this->logger = $logger;
+        $this->logger = null === $logger ? new NullLogger() : $logger;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function publish($routeName, array $routeParameters = [], NotificationInterface $notification, NotificationContextInterface $context = null)
+    public function publish($channel, NotificationInterface $notification, NotificationContextInterface $context = null)
     {
-        $channel = $this->routeGenerator->generate($routeName, $routeParameters);
+        $notification->setChannel($channel);
 
-        if (null !== $this->logger) {
-            $this->logger->info(sprintf(
-                'push %s into %s',
-                $notification->getTitle(),
-                $channel
-            ), $notification->toArray());
-        }
+        $this->logger->info(sprintf(
+            'push %s into %s',
+            $notification->getTitle(),
+            $channel
+        ), $notification->toArray());
+
 
         $data = [];
         $data['notification'] = $notification;

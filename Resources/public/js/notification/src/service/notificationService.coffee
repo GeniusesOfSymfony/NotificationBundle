@@ -3,15 +3,28 @@
 module.exports = ['$rootScope', 'configs', ($rootScope, configs) ->
     @websocket = null
 
-    @fetch = (session, route, start, end, successCb) ->
+    @fetch = (session, channel, start, end, successCb) ->
         _this = this
         start = start or 1
         end = end or 15
+
         session.call('notification/fetch',
             start: start
             end: end
-            route: route).then successCb, (error) ->
-        console.log error
+            channel: channel
+        ).then successCb, (error) ->
+            console.log error
+        return
+    return
+
+    @markAsViewed = (channel, uuid, successCb) ->
+        _this = this
+
+        session.call('notification/markAsViewed',
+            channel: channel,
+            uuid: uuid
+        ).then successCb, (error) ->
+            console.log error
         return
     return
 

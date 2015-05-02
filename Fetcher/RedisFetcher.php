@@ -9,6 +9,7 @@ use Gos\Bundle\NotificationBundle\Serializer\NotificationSerializerInterface;
 use Gos\Bundle\PubSubRouterBundle\Generator\GeneratorInterface;
 use Predis\Client;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class RedisFetcher implements FetcherInterface
 {
@@ -28,60 +29,35 @@ class RedisFetcher implements FetcherInterface
     protected $logger;
 
     /**
-     * @var GeneratorInterface
-     */
-    protected $routeGenerator;
-
-    /**
-     * @param GeneratorInterface              $routeGenerator
      * @param Client                          $client
      * @param NotificationSerializerInterface $serializer
      * @param LoggerInterface                 $logger
      */
     public function __construct(
-        GeneratorInterface $routeGenerator,
         Client $client,
         NotificationSerializerInterface $serializer,
         LoggerInterface $logger = null
     ) {
         $this->client = $client;
         $this->serializer = $serializer;
-        $this->logger = $logger;
-        $this->routeGenerator = $routeGenerator;
+        $this->logger = null === $logger ? new NullLogger() : $logger;
 
         //Command to enable to retrieve notification by uuid
         $client->getProfile()->defineCommand('lidxof', new IndexOfElement());
     }
 
     /**
-     * @param array $routes
-     *
-     * @return array
-     */
-    protected function getChannels(array $routes)
-    {
-        $channels = [];
-
-        foreach ($routes as $routeName => $routeParameters) {
-            $channels[] = $this->routeGenerator->generate($routeName, $routeParameters);
-        }
-
-        return $channels;
-    }
-
-    /**
      * {@inheritdoc}
      */
-    public function multipleFetch(array $routes, $start, $end)
+    public function multipleFetch(array $channels, $start, $end)
     {
-        $channels = $this->getChannels($routes);
         $notifications = [];
 
-        foreach ($channels as $channel) {
-            $messages = $this->client->lrange($channel, $start, $end);
+        foreach ($channels as $url) {
+            $messages = $this->client->lrange($url, $start, $end);
 
             foreach ($messages as $message) {
-                $notifications[$channel][] = $this->serializer->deserialize($message);
+                $notifications[$url][] = $this->serializer->deserialize($message);
             }
         }
 
@@ -91,9 +67,8 @@ class RedisFetcher implements FetcherInterface
     /**
      * {@inheritdoc}
      */
-    public function fetch($routeName, array $routeParameters = [], $start, $end)
+    public function fetch($channel, $start, $end)
     {
-        $channel = $this->routeGenerator->generate($routeName, $routeParameters);
         $messages = $this->client->lrange($channel, $start, $end);
         $notifications = [];
 
@@ -107,16 +82,14 @@ class RedisFetcher implements FetcherInterface
     /**
      * {@inheritdoc}
      */
-    public function multipleCount(array $routes, array $options = [])
+    public function multipleCount(array $channels, array $options = [])
     {
-        $channels = $this->getChannels($routes);
-
         $counter = array();
         $total = 0;
 
-        foreach ($channels as $channel) {
-            $count = $this->client->get($channel . '-counter');
-            $counter[$channel] = (int) $count;
+        foreach ($channels as $url) {
+            $count = $this->client->get($url . '-counter');
+            $counter[$url] = (int) $count;
             $total += $count;
         }
 
@@ -128,38 +101,36 @@ class RedisFetcher implements FetcherInterface
     /**
      * {@inheritdoc}
      */
-    public function count($routeName, array $routeParameters = [], array $options = [])
+    public function count($channel, array $options = [])
     {
-        $channel = $this->routeGenerator->generate($routeName, $routeParameters);
-
         return $this->client->get($channel . '-counter');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getNotification($routeName, array $routeParameters = [], $uuid)
+    public function getNotification($channel, $uuid)
     {
-        return $this->doGetNotification($this->routeGenerator->generate($routeName, $routeParameters), $uuid);
+        return $this->doGetNotification($channel, $uuid);
     }
 
     /**
-     * @param string $channel
+     * @param string $url
      * @param string $uuid
      *
      * @return NotificationInterface
      *
      * @throws NotFoundNotificationException
      */
-    protected function doGetNotification($channel, $uuid)
+    protected function doGetNotification($url, $uuid)
     {
-        $index = $this->client->lidxof($channel, 'uuid', $uuid);
+        $index = $this->client->lidxof($url, 'uuid', $uuid);
 
         if ($index === -1) {
             throw new NotFoundNotificationException($uuid);
         }
 
-        $message = $this->client->lindex($channel, $index);
+        $message = $this->client->lindex($url, $index);
 
         $notification = $this->serializer->deserialize($message);
 
@@ -169,10 +140,8 @@ class RedisFetcher implements FetcherInterface
     /**
      * {@inheritdoc}
      */
-    public function markAsViewed($routeName, array $routeParameters = [], $uuidOrNotification, $force = false)
+    public function markAsViewed($channel, $uuidOrNotification, $force = false)
     {
-        $channel = $this->routeGenerator->generate($routeName, $routeParameters);
-
         if ($uuidOrNotification instanceof NotificationInterface) {
             $uuid = $uuidOrNotification->getUuid();
         } else {

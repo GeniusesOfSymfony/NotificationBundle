@@ -4,17 +4,16 @@ module.exports = ['$rootScope', '$scope', 'boardService', ($rootScope, $scope, b
     $scope.display = false
     $scope.notifications = []
 
+    $scope.dismiss = (notification) -> 
+       boardService.dismiss notification
+
     $scope.$on 'board:display', (event, arg) ->
         $scope.display = arg
 
         if !$scope.display
             return
 
-        route =
-            name: 'user_notification'
-            parameters: username: 'user2'
-
-        boardService.load $scope, route
+        boardService.load $scope
         return
     return
 ]

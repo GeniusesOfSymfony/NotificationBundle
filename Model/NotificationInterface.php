@@ -117,4 +117,14 @@ interface NotificationInterface extends \JsonSerializable
      * @return array
      */
     public function toArray();
+
+    /**
+     * @return string
+     */
+    public function getChannel();
+
+    /**
+     * @param string $url
+     */
+    public function setChannel($url);
 }

@@ -17,6 +17,7 @@ var sequence = require('gulp-watch-sequence');
 var argv = require('yargs').argv;
 var gulpif = require('gulp-if');
 var coffeeify = require('coffeeify');
+var ngHtml2Js = require('browserify-ng-html2js');
 
 const OUTPUT_FILE_NAME = 'gos-notification.min.js';
 const ENTRY_FILE = './src/gos-notification.coffee';
@@ -48,7 +49,7 @@ var bundle = function(){
 };
 
 gulp.task('less', function() {
-    gulp.src(STYLE_DIR + '*.less')
+    gulp.src(STYLE_DIR + '/*.less')
         .pipe(less())
         .pipe(autoprefix('last 2 version', 'ie 8', 'ie 9'))
         .pipe(minifyCSS({
@@ -68,8 +69,9 @@ gulp.task('watch', function(){
 
     bundle();
 
-    gulp.watch(STYLE_DIR + '*.less', function(){
+    gulp.watch(STYLE_DIR + '/*.less', function(){
         gulp.run('less');
+        gutil.log('Update css');
     });
 });
 

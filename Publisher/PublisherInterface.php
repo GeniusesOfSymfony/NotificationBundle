@@ -8,10 +8,9 @@ use Gos\Bundle\NotificationBundle\Model\NotificationInterface;
 interface PublisherInterface
 {
     /**
-     * @param string                            $routeName
-     * @param string[]                          $routeParameters
+     * @param string                            $channel
      * @param NotificationInterface             $notification
      * @param NotificationContextInterface|null $context
      */
-    public function publish($routeName, array $routeParameters = [], NotificationInterface $notification, NotificationContextInterface $context = null);
+    public function publish($channel, NotificationInterface $notification, NotificationContextInterface $context = null);
 }

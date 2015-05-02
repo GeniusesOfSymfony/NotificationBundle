@@ -42,12 +42,31 @@ class Notification implements NotificationInterface
     /** @var  int */
     protected $timeout;
 
+    /** @var  string */
+    protected $channel;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->uuid = $this->generateUuid();
         $this->extra = [];
         $this->timeout = 5000;
+    }
+
+    /**
+     * @return array
+     */
+    public function getChannel()
+    {
+        return $this->channel;
+    }
+
+    /**
+     * @param string $channel
+     */
+    public function setChannel($channel)
+    {
+        $this->channel = $channel;
     }
 
     /**
@@ -261,7 +280,8 @@ class Notification implements NotificationInterface
             'title' => $this->title,
             'link' => $this->link,
             'extra' => $this->extra,
-            'timeout' => $this->timeout
+            'timeout' => $this->timeout,
+            'channel' => $this->channel
         );
     }
 

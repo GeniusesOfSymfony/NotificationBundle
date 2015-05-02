@@ -10,7 +10,6 @@ notificationApp = angular.module('notificationApp', [
 
 notificationApp.constant 'version', require('../package.json').version
 
-#Change symbol in order to be compatible with twig
 notificationApp.config [
     '$interpolateProvider'
     ($interpolateProvider) ->
@@ -18,7 +17,6 @@ notificationApp.config [
         return
 ]
 
-#Make symfony Request::isMethod('XmlHttRequest') properly work
 notificationApp.config [
     '$sceProvider'
     '$httpProvider'

@@ -8,54 +8,51 @@ use Gos\Bundle\NotificationBundle\Model\NotificationInterface;
 interface FetcherInterface
 {
     /**
-     * @param string|string[] $channels
+     * @param string $channel
      * @param int             $start
      * @param int             $end
      *
      * @return NotificationInterface[]|array
      */
-    public function fetch($routeName, array $routeParameters = [], $start, $end);
+    public function fetch($channel, $start, $end);
 
     /**
-     * @param array $routes
+     * @param string[] $channels
      * @param int   $start
      * @param int   $end
      *
      * @return array
      */
-    public function multipleFetch(array $routes, $start, $end);
+    public function multipleFetch(array $channels, $start, $end);
 
     /**
-     * @param string   $routeName
-     * @param string[] $routeParameters
+     * @param string   $channel
      * @param array    $options
      *
      * @return int
      */
-    public function count($routeName, array $routeParameters, array $options = []);
+    public function count($channel, array $options = []);
 
     /**
-     * @param array $routes
+     * @param array $channels
      * @param array $options
      *
      * @return array
      */
-    public function multipleCount(array $routes, array $options = []);
+    public function multipleCount(array $channels, array $options = []);
 
     /**
-     * @param string   $routeName
-     * @param string[] $routeParameters
+     * @param string   $channel
      * @param string   $uuid
      *
      * @return NotificationInterface
      *
      * @throws NotFoundNotificationException
      */
-    public function getNotification($routeName, array $routeParameters = [], $uuid);
+    public function getNotification($channel, $uuid);
 
     /**
-     * @param string                       $routeName
-     * @param string[]                     $routeParameters
+     * @param string                       $channel
      * @param string|NotificationInterface $uuidOrNotification
      * @param bool                         $force
      *
@@ -63,5 +60,5 @@ interface FetcherInterface
      *
      * @return bool
      */
-    public function markAsViewed($routeName, array $routeParameters = [], $uuidOrNotification, $force = false);
+    public function markAsViewed($channel, $uuidOrNotification, $force = false);
 }

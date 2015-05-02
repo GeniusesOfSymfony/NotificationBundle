@@ -15,6 +15,7 @@
   "devDependencies": {
     "browser-sync": "^2.6.5",
     "browserify": "^9.0.8",
+    "browserify-ng-html2js": "^1.0.1",
     "browserify-shim": "^3.8.5",
     "coffeeify": "^1.0.0",
     "gulp": "^3.8.11",

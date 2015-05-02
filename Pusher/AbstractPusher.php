@@ -111,10 +111,18 @@ abstract class AbstractPusher implements PusherInterface, ProcessorDelegate
      * @param null   $value
      * @param int    $i
      *
+     * @see http://fr.wikipedia.org/wiki/Matrice_de_permutation
+     *
      * @return array
      */
-    protected function generateMatrixPermutations(array $data, array &$all = array(), $groupName = '', array $group = array(), $value = null, $i = 0)
-    {
+    protected function generateMatrixPermutations(
+        array $data,
+        array &$all = array(),
+        $groupName = '',
+        array $group = array(),
+        $value = null,
+        $i = 0
+    ) {
         $keys = array_keys($data);
 
         if (isset($value) === true) {

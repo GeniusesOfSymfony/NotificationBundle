@@ -37,56 +37,56 @@ class NotificationCenter implements NotificationManipulatorInterface
     /**
      * {@inheritdoc}
      */
-    public function fetch($routeName, array $routeParameters = [], $start, $end)
+    public function fetch($channel, $start, $end)
     {
-        return $this->fetcher->fetch($routeName, $routeParameters, $start, $end);
+        return $this->fetcher->fetch($channel, $start, $end);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function publish($routeName, array $routeParameters = [], NotificationInterface $notification, NotificationContextInterface $context = null)
+    public function publish($channel, NotificationInterface $notification, NotificationContextInterface $context = null)
     {
-        return $this->publisher->publish($routeName, $routeParameters, $notification, $context);
+        return $this->publisher->publish($channel, $notification, $context);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function count($routeName, array $routeParameters = [], array $options = [])
+    public function count($channel, array $options = [])
     {
-        return $this->fetcher->count($routeName, $routeParameters, $options);
+        return $this->fetcher->count($channel, $options);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getNotification($routeName, array $routeParameters = [], $uuid)
+    public function getNotification($channel, $uuid)
     {
-        return $this->fetcher->getNotification($routeName, $routeParameters, $uuid);
+        return $this->fetcher->getNotification($channel, $uuid);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function markAsViewed($routeName, array $routeParameters = [], $uuidOrNotification, $force = false)
+    public function markAsViewed($channel, $uuidOrNotification, $force = false)
     {
-        return $this->fetcher->markAsViewed($routeName, $routeParameters, $uuidOrNotification, $force);
+        return $this->fetcher->markAsViewed($channel, $uuidOrNotification, $force);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function multipleFetch(array $routes, $start, $end)
+    public function multipleFetch(array $channels, $start, $end)
     {
-        return $this->fetcher->multipleFetch($routes, $start, $end);
+        return $this->fetcher->multipleFetch($channels, $start, $end);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function multipleCount(array $routes, array $options = [])
+    public function multipleCount(array $channels, array $options = [])
     {
-        return $this->fetcher->multipleCount($routes, $options);
+        return $this->fetcher->multipleCount($channels, $options);
     }
 }
