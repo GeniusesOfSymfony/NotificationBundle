@@ -36,8 +36,6 @@ class RedisPublisher implements PublisherInterface
      */
     public function publish($channel, NotificationInterface $notification, NotificationContextInterface $context = null)
     {
-        $notification->setChannel($channel);
-
         $this->logger->info(sprintf(
             'push %s into %s',
             $notification->getTitle(),

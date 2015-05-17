@@ -66,6 +66,7 @@ class RedisPusher extends AbstractPusher
         $pipe = $this->client->pipeline();
 
         foreach ($this->generateRoutes($request->getRoute(), $matrix) as $channel) {
+            $notification->setChannel($channel);
             $pipe->lpush($channel, json_encode($notification->toArray()));
             $pipe->incr($channel . '-counter');
         }

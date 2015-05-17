@@ -27,6 +27,7 @@ use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\Log\NullLogger;
 
 /**
  * @author Johann Saunier <johann_27@hotmail.fr>
@@ -95,6 +96,7 @@ class PubSubServer implements ServerInterface
         $this->redisDumper = $redisDumper;
         $this->router = $router;
         $this->container = $container;
+        $this->logger = null === $logger ? new NullLogger() : $logger;
     }
 
     /**
@@ -112,20 +114,18 @@ class PubSubServer implements ServerInterface
         $this->client->connect(function () {
             $subscription = $this->redisDumper->dump();
 
-            if (null !== $this->logger) {
-                if (!empty($subscription['subscribe'])) {
-                    $this->logger->info(sprintf(
-                        'Listening topics %s',
-                        implode(', ', $subscription['subscribe'])
-                    ));
-                }
+            if (!empty($subscription['subscribe'])) {
+                $this->logger->info(sprintf(
+                    'Listening topics %s',
+                    implode(', ', $subscription['subscribe'])
+                ));
+            }
 
-                if (!empty($subscription['psubscribe'])) {
-                    $this->logger->info(sprintf(
-                        'Listening pattern %s',
-                        implode(', ', $subscription['psubscribe'])
-                    ));
-                }
+            if (!empty($subscription['psubscribe'])) {
+                $this->logger->info(sprintf(
+                    'Listening pattern %s',
+                    implode(', ', $subscription['psubscribe'])
+                ));
             }
 
             /* @var PubSubContext $pubSubContext */
@@ -177,13 +177,11 @@ class PubSubServer implements ServerInterface
                 $matched = $this->router->match($message->getChannel());
                 $request = new PubSubRequest($matched[0], $matched[1], $matched[2]);
 
-                if (null !== $this->logger) {
-                    $this->logger->info(sprintf(
-                        'Route %s matched with [%s]',
-                        $request->getRouteName(),
-                        implode(', ', array_map(function ($v, $k) { return sprintf("%s='%s'", $k, $v); }, $request->getAttributes()->all(), array_keys($request->getAttributes()->all())))
-                    ));
-                }
+                $this->logger->info(sprintf(
+                    'Route %s matched with [%s]',
+                    $request->getRouteName(),
+                    implode(', ', array_map(function ($v, $k) { return sprintf("%s='%s'", $k, $v); }, $request->getAttributes()->all(), array_keys($request->getAttributes()->all())))
+                ));
 
                 $route = $request->getRoute();
                 $pushers = $this->pusherRegistry->getPushers($route->getCallback());
@@ -227,22 +225,18 @@ class PubSubServer implements ServerInterface
                     $pusher->push($message, $notification, $request, $context);
                 }
 
-                if (null !== $this->logger) {
-                    $this->logger->info('notification processed');
-                }
+                $this->logger->info('notification processed');
             });
 
             /* Server Event Loop to add other services in the same loop. */
             $event = new ServerEvent($this->loop, $this->getAddress(), $this->getName());
             $this->eventDispatcher->dispatch(Events::SERVER_LAUNCHED, $event);
 
-            if (null !== $this->logger) {
-                $this->logger->info(sprintf(
-                    'Launching %s on %s',
-                    $this->getName(),
-                    $this->getAddress()
-                ));
-            }
+            $this->logger->info(sprintf(
+                'Launching %s on %s',
+                $this->getName(),
+                $this->getAddress()
+            ));
         });
 
         $this->loop->run();

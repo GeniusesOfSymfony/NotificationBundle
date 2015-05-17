@@ -1,30 +1,35 @@
 'use strict'
 
-module.exports = ['$rootScope', 'configs', ($rootScope, configs) ->
+module.exports = ['$rootScope', 'appConfigs', ($rootScope, appConfigs) ->
     @websocket = null
     @connected = false
     @hasPreviousConnection = false
     @session = null
 
     @connect = ->
-        _this = this
-        @websocket = WS.connect(configs.websocketURI)
+        self = @
+
+        @websocket = WS.connect(appConfigs.websocketURI)
 
         @websocket.on 'socket/connect', (session) ->
-            _this.connected = true
-            _this.session = session
-            console.log 'connected to ' + configs.websocketURI
+            self.connected = true
+            self.session = session
+
+            if appConfigs.debug
+                console.log 'connected to ' + appConfigs.websocketURI
+
             $rootScope.$broadcast 'ws:connect', session
             return
 
         $rootScope.$on 'socket/disconnect', (event, error) ->
-            console.log 'Disconnected for ' + error.reason + ' with code ' + error.code
+            if appConfigs.debug 
+                console.log 'Disconnected for ' + error.reason + ' with code ' + error.code
             return
 
         @websocket.on 'socket/disconnect', (error) ->
-            _this.connected = false
-            _this.session = null
-            _this.hasPreviousConnection = true
+            self.connected = false
+            self.session = null
+            self.hasPreviousConnection = true
             $rootScope.$broadcast 'ws:disconnect', error
             return
         return

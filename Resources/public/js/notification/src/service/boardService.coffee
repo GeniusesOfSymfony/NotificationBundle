@@ -1,47 +1,34 @@
 'use strict'
 
-module.exports = ['$rootScope', 'websocketService', 'notificationCenter, configs', ($rootScope, websocketService, notificationCenter, configs) ->
+module.exports = ['$rootScope', 'notificationService', 'appConfigs', '$q', ($rootScope, notificationService, appConfigs, $q) ->
     @start = 1
     @end = 15
 
-    @config = (configs) ->
-        if configs.hasOwnProperty('start')
-            @start = configs.start
-        if Config.hasOwnProperty('end')
-            @end = configs.end
+    @update = ->
         return
 
-    @update = ->
-
     @dismiss = (notification) ->
-        notificationCenter.markAsViewed(notification.channel, notification.uuid)
-
+        notificationService.markAsViewed(notification.channel, notification.uuid, () -> 
+            if appConfigs.debug
+                console.log('Marked as read : '+ notification.channel+':'+notification.uuid)
+        )
         return
 
     @notificationCallback = ($scope, channel, eventName) ->
-        _this = this
+        self = @
 
-        notificationCenter.fetch websocketService.session, channel, _this.start, _this.end, (payload) ->
+        notificationService.fetch channel, self.start, self.end, (payload) ->
             $scope.$apply ->
                 $scope.notifications = payload.result
+                $rootScope.$broadcast eventName, $scope.notifications
+                $rootScope.$broadcast 'notification:board:rebuild'
                 return
-
-            $rootScope.$broadcast eventName, $scope.notifications
-            $rootScope.$broadcast 'notification:board:rebuild'
             return
         return
 
     @load = ($scope) ->
-        _this = this
-        if websocketService.isConnected()
-            for i in configs.channels
-                @notificationCallback $scope, channels[i], 'notification:board:update'
-        else
-            $rootScope.$on 'ws:connect', (event, session) ->
-                for i in configs.channels
-                    _this.notificationCallback $scope, channels[i], 'notification:board:load'
-                return
-        return
-
+        self = @
+        for channel in appConfigs.channels
+            @notificationCallback $scope, channel, 'notification:board:update'
     return
 ]

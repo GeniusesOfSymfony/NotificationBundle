@@ -8,33 +8,23 @@ notificationApp = angular.module('notificationApp', [
     require('angular-scrollbar')
 ])
 
-notificationApp.constant 'version', require('../package.json').version
+notificationApp.constant 'Version', require('../package.json').version
+notificationApp.constant 'appConfigs', notificationConfig
 
-notificationApp.config [
-    '$interpolateProvider'
-    ($interpolateProvider) ->
-        $interpolateProvider.startSymbol('[[').endSymbol(']]')
-        return
+notificationApp.config [ '$interpolateProvider', '$sceProvider', '$httpProvider', ($interpolateProvider, $sceProvider, $httpProvider) ->
+    $sceProvider.enabled false
+    $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+    $interpolateProvider.startSymbol('[[').endSymbol(']]')
+    return
 ]
-
-notificationApp.config [
-    '$sceProvider'
-    '$httpProvider'
-    ($sceProvider, $httpProvider) ->
-        $sceProvider.enabled false
-        $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
-        return
-]
-
-notificationApp.constant 'configs', notificationConfig
 
 notificationApp.run ['websocketService', (websocketService) ->
     websocketService.connect()
     return
 ]
 
-notificationApp.service 'notificationCenter', require('./service/notificationService')
 notificationApp.service 'websocketService', require('./service/websocketService')
+notificationApp.service 'notificationService', require('./service/notificationService')
 notificationApp.service 'boardService', require('./service/boardService')
 notificationApp.controller 'toggleCtrl', require('./controller/toggleCtrl')
 notificationApp.controller 'realtimeCtrl', require('./controller/realtimeCtrl')

@@ -77,6 +77,7 @@ class WebsocketPusher extends AbstractPusher
         $socket->connect('/');
 
         foreach ($this->generateRoutes($request->getRoute(), $matrix) as $channel) {
+            $notification->setChannel($channel);
             $socket->publish($channel, json_encode($notification));
         }
 

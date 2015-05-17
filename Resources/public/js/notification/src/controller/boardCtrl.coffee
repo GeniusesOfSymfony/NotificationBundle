@@ -9,7 +9,7 @@ module.exports = ['$rootScope', '$scope', 'boardService', ($rootScope, $scope, b
 
     $scope.$on 'board:display', (event, arg) ->
         $scope.display = arg
-
+        
         if !$scope.display
             return
 
