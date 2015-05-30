@@ -19,6 +19,7 @@ use Gos\Bundle\PubSubRouterBundle\Router\RouterInterface;
 use Gos\Bundle\WebSocketBundle\Event\Events;
 use Gos\Bundle\WebSocketBundle\Event\ServerEvent;
 use Gos\Bundle\WebSocketBundle\Server\Type\ServerInterface;
+use Gos\Component\PnctlEventLoopEmitter\PnctlEmitter;
 use Predis\Async\Client;
 use Predis\Async\PubSub\PubSubContext;
 use Predis\ResponseError;
@@ -104,9 +105,7 @@ class PubSubServer implements ServerInterface
      */
     public function launch()
     {
-        if (null !== $this->logger) {
-            $this->logger->info('Starting redis pubsub');
-        }
+        $this->logger->info('Starting redis pubsub');
 
         $this->loop = Factory::create();
         $this->client = new Client('tcp://' . $this->getAddress(), $this->loop);
@@ -228,16 +227,38 @@ class PubSubServer implements ServerInterface
                 $this->logger->info('notification processed');
             });
 
-            /* Server Event Loop to add other services in the same loop. */
-            $event = new ServerEvent($this->loop, $this->getAddress(), $this->getName());
-            $this->eventDispatcher->dispatch(Events::SERVER_LAUNCHED, $event);
-
             $this->logger->info(sprintf(
                 'Launching %s on %s',
                 $this->getName(),
                 $this->getAddress()
             ));
         });
+
+        if(extension_loaded('pcntl')){
+            $pnctlEmitter = new PnctlEmitter($this->loop);
+
+            $pnctlEmitter->on(SIGTERM, function () {
+                $this->client->getConnection()->disconnect();
+                $this->loop->stop();
+                $this->logger->notice('Server stopped !');
+            });
+
+            $pnctlEmitter->on(SIGINT, function () {
+
+                $this->logger->notice('Press CTLR+C again to stop the server');
+
+                if (SIGINT === pcntl_sigtimedwait([SIGINT], $siginfo, 5)) {
+                    $this->logger->notice('Stopping server ...');
+
+                    $this->client->getConnection()->disconnect();
+                    $this->loop->stop();
+
+                    $this->logger->notice('Server stopped !');
+                } else {
+                    $this->logger->notice('CTLR+C not pressed, continue to run normally');
+                }
+            });
+        }
 
         $this->loop->run();
     }

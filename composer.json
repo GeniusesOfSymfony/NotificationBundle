@@ -17,7 +17,8 @@
         "gos/web-socket-bundle": "~0.1@dev",
         "snc/redis-bundle": "1.1.x-dev",
         "predis/predis": "0.8.x-dev",
-        "predis/predis-async": "~0.2"
+        "predis/predis-async": "~0.2",
+        "gos/pnctl-event-loop-emitter" : "~0.1"
     },
     "autoload": {
         "psr-4": { "Gos\\Bundle\\NotificationBundle\\": "" }
