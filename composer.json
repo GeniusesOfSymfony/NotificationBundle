@@ -2,7 +2,7 @@
     "name": "gos/notification-bundle",
     "type": "symfony-bundle",
     "description": "Symfony Notification Bundle",
-    "keywords": ["Notification Bundle", "Websocket", "PubSub", "Websocket", "Redis"],
+    "keywords": ["Notification Bundle", "Websocket", "PubSub", "Websocket", "Redis", "Real time"],
     "homepage": "https://github.com/GeniusesOfSymfony/NotificationBundle",
     "license": "MIT",
     "authors": [
