@@ -9,8 +9,9 @@ use Gos\Bundle\PubSubRouterBundle\Request\PubSubRequest;
 use Gos\Bundle\PubSubRouterBundle\Router\RouteInterface;
 use Gos\Bundle\PubSubRouterBundle\Router\RouterInterface;
 use Gos\Component\WebSocketClient\Wamp\Client;
+use Gos\Component\Yolo\YoloInterface;
 
-class WebsocketPusher extends AbstractPusher
+class WebsocketPusher extends AbstractPusher implements YoloInterface
 {
     const ALIAS = 'gos_websocket';
 
@@ -74,7 +75,7 @@ class WebsocketPusher extends AbstractPusher
         NotificationContextInterface $context = null
     ) {
         $socket = new Client($this->serverHost, $this->serverPort);
-        $socket->connect('/');
+        $socket->connect();
 
         foreach ($this->generateRoutes($request->getRoute(), $matrix) as $channel) {
             $notification->setChannel($channel);
@@ -82,6 +83,21 @@ class WebsocketPusher extends AbstractPusher
         }
 
         $socket->disconnect();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAvailable()
+    {
+        $result = false;
+
+        if ($fp = @fsockopen($this->serverHost, $this->serverPort, $errCode, $errStr, 1)) {
+            $result = true;
+            fclose($fp);
+        }
+
+        return $result;
     }
 
     /**
