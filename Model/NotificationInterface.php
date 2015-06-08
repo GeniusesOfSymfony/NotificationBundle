@@ -49,11 +49,6 @@ interface NotificationInterface extends \JsonSerializable
     public function getUuid();
 
     /**
-     * @param string $uuid
-     */
-    public function setUuid($uuid);
-
-    /**
      * @return string
      */
     public function getTitle();

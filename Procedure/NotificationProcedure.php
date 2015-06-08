@@ -53,9 +53,9 @@ class NotificationProcedure implements RpcInterface
         $end = $params['end'];
         $channel = $this->transliterateChannel($params['channel']);
 
-        if(is_array($channel)){
+        if (is_array($channel)) {
             $result = $this->notificationCenter->multipleFetch($channel, $start, $end);
-        }else{
+        } else {
             $result = $this->notificationCenter->fetch($channel, $start, $end);
         }
 
@@ -73,9 +73,9 @@ class NotificationProcedure implements RpcInterface
         $options = $params['options'];
         $channel = $this->transliterateChannel($params['channel']);
 
-        if(is_array($channel)){
+        if (is_array($channel)) {
             $result = $this->notificationCenter->multipleCount($channel, $options);
-        }else{
+        } else {
             $result = $this->notificationCenter->count($channel, $options);
         }
 
@@ -107,10 +107,10 @@ class NotificationProcedure implements RpcInterface
         $channel = $this->transliterateChannel($params['channel']);
         $uuid = $params['uuid'];
 
-        if(isset($params['force'])){
+        if (isset($params['force'])) {
             $force = (bool) $params['force'];
             $result = $this->notificationCenter->markAsViewed($channel, $uuid, $force);
-        }else{
+        } else {
             $result = $this->notificationCenter->markAsViewed($channel, $uuid);
         }
 

@@ -126,7 +126,6 @@ class Notification implements NotificationInterface
         $this->timeout = $timeout;
     }
 
-
     /**
      * UUID v4.
      *
@@ -149,14 +148,6 @@ class Notification implements NotificationInterface
     public function getUuid()
     {
         return $this->uuid;
-    }
-
-    /**
-     * @param string $uuid
-     */
-    public function setUuid($uuid)
-    {
-        $this->uuid = $uuid;
     }
 
     /**
@@ -281,7 +272,7 @@ class Notification implements NotificationInterface
             'link' => $this->link,
             'extra' => $this->extra,
             'timeout' => $this->timeout,
-            'channel' => $this->channel
+            'channel' => $this->channel,
         );
     }
 

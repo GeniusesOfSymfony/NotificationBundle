@@ -44,7 +44,7 @@ class PusherIdentity
      */
     public static function fromAccount(UserInterface $user)
     {
-        return new PusherIdentity('user', $user->getUsername());
+        return new self('user', $user->getUsername());
     }
 
     /**

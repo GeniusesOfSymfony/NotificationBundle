@@ -4,7 +4,6 @@ namespace Gos\Bundle\NotificationBundle\Publisher;
 
 use Gos\Bundle\NotificationBundle\Context\NotificationContextInterface;
 use Gos\Bundle\NotificationBundle\Model\NotificationInterface;
-use Gos\Bundle\PubSubRouterBundle\Generator\GeneratorInterface;
 use Predis\Client;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -22,8 +21,8 @@ class RedisPublisher implements PublisherInterface
     protected $logger;
 
     /**
-     * @param Client             $redis
-     * @param LoggerInterface    $logger
+     * @param Client          $redis
+     * @param LoggerInterface $logger
      */
     public function __construct(Client $redis, LoggerInterface $logger = null)
     {
@@ -41,7 +40,6 @@ class RedisPublisher implements PublisherInterface
             $notification->getTitle(),
             $channel
         ), $notification->toArray());
-
 
         $data = [];
         $data['notification'] = $notification;

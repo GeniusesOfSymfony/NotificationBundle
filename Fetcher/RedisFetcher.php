@@ -6,7 +6,6 @@ use Gos\Bundle\NotificationBundle\Exception\NotFoundNotificationException;
 use Gos\Bundle\NotificationBundle\Model\NotificationInterface;
 use Gos\Bundle\NotificationBundle\Redis\IndexOfElement;
 use Gos\Bundle\NotificationBundle\Serializer\NotificationSerializerInterface;
-use Gos\Bundle\PubSubRouterBundle\Generator\GeneratorInterface;
 use Predis\Client;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;

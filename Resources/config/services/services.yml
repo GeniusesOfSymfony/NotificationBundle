@@ -9,13 +9,10 @@ services:
         class: Gos\Bundle\NotificationBundle\Server\PubSubServer
         arguments:
             - @event_dispatcher
-            - @gos_notification.notification.serializer
-            - @gos_notification.notification_context.serializer
-            - @gos_notification.pusher.registry
             - %gos_notification.pubsub_server.config%
-            - @gos_pubsub_router.redis
             - @gos_notification.notification.redis.dumper
-            - @service_container
+            - @gos_notification.notification.server.processor
+            - %kernel.debug%
             - @?monolog.logger.notification
 
     gos_notification.pubsub_server.command:
@@ -101,3 +98,16 @@ services:
             - @gos_pubsub_router.collection.redis
             - @gos_pubsub_router.generator
             - @gos_pubsub_router.tokenizer
+
+    gos_notification.notification.server.processor:
+        class: Gos\Bundle\NotificationBundle\Server\ServerNotificationProcessor
+        public: false
+        lazy: true
+        arguments:
+            - @gos_notification.notification.serializer
+            - @gos_notification.notification_context.serializer
+            - @gos_pubsub_router.redis
+            - @gos_notification.pusher.registry
+            - @event_dispatcher
+            - @service_container
+            - @?monolog.logger.notification

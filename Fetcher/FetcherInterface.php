@@ -9,8 +9,8 @@ interface FetcherInterface
 {
     /**
      * @param string $channel
-     * @param int             $start
-     * @param int             $end
+     * @param int    $start
+     * @param int    $end
      *
      * @return NotificationInterface[]|array
      */
@@ -18,16 +18,16 @@ interface FetcherInterface
 
     /**
      * @param string[] $channels
-     * @param int   $start
-     * @param int   $end
+     * @param int      $start
+     * @param int      $end
      *
      * @return array
      */
     public function multipleFetch(array $channels, $start, $end);
 
     /**
-     * @param string   $channel
-     * @param array    $options
+     * @param string $channel
+     * @param array  $options
      *
      * @return int
      */
@@ -42,8 +42,8 @@ interface FetcherInterface
     public function multipleCount(array $channels, array $options = []);
 
     /**
-     * @param string   $channel
-     * @param string   $uuid
+     * @param string $channel
+     * @param string $uuid
      *
      * @return NotificationInterface
      *
