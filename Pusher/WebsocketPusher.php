@@ -9,7 +9,10 @@ use Gos\Bundle\PubSubRouterBundle\Request\PubSubRequest;
 use Gos\Bundle\PubSubRouterBundle\Router\RouteInterface;
 use Gos\Bundle\PubSubRouterBundle\Router\RouterInterface;
 use Gos\Component\WebSocketClient\Wamp\Client;
+use Gos\Component\Yolo\Callback\PingBack;
 use Gos\Component\Yolo\YoloInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class WebsocketPusher extends AbstractPusher implements YoloInterface
 {
@@ -30,16 +33,21 @@ class WebsocketPusher extends AbstractPusher implements YoloInterface
      */
     protected $router;
 
+    /** @var LoggerInterface */
+    protected $logger;
+
     /**
      * @param string          $serverHost
-     * @param string          $serverPort
+     * @param int             $serverPort
      * @param RouterInterface $router
+     * @param LoggerInterface $logger
      */
-    public function __construct($serverHost, $serverPort, RouterInterface $router)
+    public function __construct($serverHost, $serverPort, RouterInterface $router, LoggerInterface $logger = null)
     {
         $this->serverHost = $serverHost;
         $this->serverPort = $serverPort;
         $this->router = $router;
+        $this->logger = null === $logger ? new NullLogger() : $logger;
     }
 
     /**
@@ -90,14 +98,9 @@ class WebsocketPusher extends AbstractPusher implements YoloInterface
      */
     public function isAvailable()
     {
-        $result = false;
+        $pingger = new PingBack($this->serverHost, $this->serverPort);
 
-        if ($fp = @fsockopen($this->serverHost, $this->serverPort, $errCode, $errStr, 1)) {
-            $result = true;
-            fclose($fp);
-        }
-
-        return $result;
+        return $pingger->ping();
     }
 
     /**

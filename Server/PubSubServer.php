@@ -117,8 +117,8 @@ class PubSubServer implements ServerInterface
         $dispatcher = new EventEmitter();
         $dispatcher->on('notification', $this->processor);
 
-        if(true === $this->debug){
-            $this->loop->addPeriodicTimer(5, function(){
+        if (true === $this->debug) {
+            $this->loop->addPeriodicTimer(5, function () {
                 $this->logger->debug('Memory usage : ' . round((memory_get_usage() / (1024 * 1024)), 2) . 'Mo');
             });
         }

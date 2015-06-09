@@ -18,7 +18,7 @@
         "snc/redis-bundle": "1.1.x-dev",
         "predis/predis": "0.8.x-dev",
         "predis/predis-async": "~0.2",
-        "gos/yolo": "^0.1.0"
+        "gos/yolo": "^0.2.0"
     },
     "autoload": {
         "psr-4": { "Gos\\Bundle\\NotificationBundle\\": "" }

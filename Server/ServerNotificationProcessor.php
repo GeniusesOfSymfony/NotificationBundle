@@ -196,7 +196,7 @@ class ServerNotificationProcessor implements ServerNotificationProcessorInterfac
      */
     public function __invoke(MessageInterface $message)
     {
-        /**
+        /*
          * @var NotificationInterface
          * @var NotificationContextInterface
          */

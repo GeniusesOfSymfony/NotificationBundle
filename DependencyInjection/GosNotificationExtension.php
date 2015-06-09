@@ -74,7 +74,7 @@ class GosNotificationExtension extends Extension implements PrependExtensionInte
                     'notification_cli' => array(
                         'type' => 'console',
                         'verbosity_levels' => array(
-                            'VERBOSITY_NORMAL' => true === $container->getParameter('kernel.debug') ? Logger::DEBUG : Logger::INFO
+                            'VERBOSITY_NORMAL' => true === $container->getParameter('kernel.debug') ? Logger::DEBUG : Logger::INFO,
                         ),
                         'channels' => 'notification',
                     ),

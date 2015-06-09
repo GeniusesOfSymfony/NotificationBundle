@@ -58,6 +58,7 @@ services:
             - %web_socket_server.host%
             - %web_socket_server.port%
             - @gos_pubsub_router.websocket
+            - @?monolog.logger.notification
 #        tags:
 #            - { name: gos_notification.pusher }
 
