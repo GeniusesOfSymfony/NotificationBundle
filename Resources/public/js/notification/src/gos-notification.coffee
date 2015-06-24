@@ -18,14 +18,15 @@ notificationApp.config [ '$interpolateProvider', '$sceProvider', '$httpProvider'
     return
 ]
 
-notificationApp.run ['websocketService', (websocketService) ->
-    websocketService.connect()
+notificationApp.run ['WebsocketService', (WebsocketService) ->
+    WebsocketService.connect()
     return
 ]
 
-notificationApp.service 'websocketService', require('./service/websocketService')
-notificationApp.service 'notificationService', require('./service/notificationService')
-notificationApp.service 'boardService', require('./service/boardService')
-notificationApp.controller 'toggleCtrl', require('./controller/toggleCtrl')
-notificationApp.controller 'realtimeCtrl', require('./controller/realtimeCtrl')
-notificationApp.controller 'boardCtrl', require('./controller/boardCtrl')
+notificationApp.directive 'notificationDirective', require('./directive/GosNotification')
+notificationApp.service 'WebsocketService', require('./service/WebsocketService')
+notificationApp.service 'NotificationService', require('./service/NotificationService')
+notificationApp.service 'BoardService', require('./service/BoardService')
+notificationApp.controller 'ToggleController', require('./controller/ToggleController')
+notificationApp.controller 'RealtimeController', require('./controller/RealtimeController')
+notificationApp.controller 'BoardController', require('./controller/BoardController')

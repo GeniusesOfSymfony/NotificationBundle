@@ -65,12 +65,12 @@ class RedisDumper
 
             foreach ($tokens as $token) {
                 if ($token->isParameter()) {
-                    $attributeCount++;
+                    ++$attributeCount;
 
                     $requirements = $token->getRequirements();
 
                     if (isset($requirements['wildcard']) && true === $requirements['wildcard']) {
-                        $wildcardAttribute++;
+                        ++$wildcardAttribute;
 
                         $routeParameters[$token->getExpression()] = '*';
                     }

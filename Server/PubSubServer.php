@@ -102,7 +102,7 @@ class PubSubServer implements ServerInterface
     /**
      * {@inheritdoc}
      */
-    public function launch()
+    public function launch($profile)
     {
         $this->logger->info('Starting redis pubsub');
 
@@ -117,9 +117,9 @@ class PubSubServer implements ServerInterface
         $dispatcher = new EventEmitter();
         $dispatcher->on('notification', $this->processor);
 
-        if (true === $this->debug) {
+        if (true === $profile) {
             $this->loop->addPeriodicTimer(5, function () {
-                $this->logger->debug('Memory usage : ' . round((memory_get_usage() / (1024 * 1024)), 2) . 'Mo');
+                $this->logger->info('Memory usage : ' . round((memory_get_usage() / (1024 * 1024)), 4) . 'Mo');
             });
         }
 

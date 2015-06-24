@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = ['$rootScope', 'notificationService', 'appConfigs', '$q', ($rootScope, notificationService, appConfigs, $q) ->
+module.exports = ['$rootScope', 'NotificationService', 'appConfigs', '$q', ($rootScope, NotificationService, appConfigs, $q) ->
     @start = 1
     @end = 15
 
@@ -8,7 +8,7 @@ module.exports = ['$rootScope', 'notificationService', 'appConfigs', '$q', ($roo
         return
 
     @dismiss = (notification) ->
-        notificationService.markAsViewed(notification.channel, notification.uuid, () -> 
+        NotificationService.markAsViewed(notification.channel, notification.uuid, () ->
             if appConfigs.debug
                 console.log('Marked as read : '+ notification.channel+':'+notification.uuid)
         )
@@ -17,7 +17,7 @@ module.exports = ['$rootScope', 'notificationService', 'appConfigs', '$q', ($roo
     @notificationCallback = ($scope, channel, eventName) ->
         self = @
 
-        notificationService.fetch channel, self.start, self.end, (payload) ->
+        NotificationService.fetch channel, self.start, self.end, (payload) ->
             $scope.$apply ->
                 $scope.notifications = payload.result
                 $rootScope.$broadcast eventName, $scope.notifications

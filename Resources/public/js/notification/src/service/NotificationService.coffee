@@ -1,13 +1,13 @@
 'use strict'
 
-module.exports = ['$rootScope', 'appConfigs', 'websocketService', ($rootScope, appConfigs, websocketService) ->
+module.exports = ['$rootScope', 'appConfigs', 'WebsocketService', ($rootScope, appConfigs, WebsocketService) ->
 
     @fetch = (channel, start, end, successCb) ->
         self = @
         start = start or 1
         end = end or 15
 
-        websocketService.session.call('notification/fetch', start: start, end: end, channel: channel)
+        WebsocketService.session.call('notification/fetch', start: start, end: end, channel: channel)
         .then successCb, (error) ->
             if appConfigs.debug
                 console.log error
@@ -16,7 +16,7 @@ module.exports = ['$rootScope', 'appConfigs', 'websocketService', ($rootScope, a
     @markAsViewed = (channel, uuid, successCb) ->
         self = @
 
-        websocketService.session.call('notification/markAsViewed', channel: channel, uuid: uuid)
+        WebsocketService.session.call('notification/markAsViewed', channel: channel, uuid: uuid)
         .then successCb, (error) ->
             if appConfigs.debug
                 console.log error

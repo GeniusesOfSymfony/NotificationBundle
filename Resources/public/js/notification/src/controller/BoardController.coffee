@@ -1,11 +1,11 @@
 'use strict'
 
-module.exports = ['$rootScope', '$scope', 'boardService', ($rootScope, $scope, boardService) ->
+module.exports = ['$rootScope', '$scope', 'BoardService', ($rootScope, $scope, BoardService) ->
     $scope.display = false
     $scope.notifications = []
 
     $scope.dismiss = (notification) -> 
-       boardService.dismiss notification
+       BoardService.dismiss notification
 
     $scope.$on 'board:display', (event, arg) ->
         $scope.display = arg
@@ -13,7 +13,7 @@ module.exports = ['$rootScope', '$scope', 'boardService', ($rootScope, $scope, b
         if !$scope.display
             return
 
-        boardService.load $scope
+        BoardService.load $scope
         return
     return
 ]

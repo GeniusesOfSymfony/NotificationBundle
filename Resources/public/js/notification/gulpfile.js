@@ -22,7 +22,7 @@ var ngHtml2Js = require('browserify-ng-html2js');
 const OUTPUT_FILE_NAME = 'gos-notification.min.js';
 const ENTRY_FILE = './src/gos-notification.coffee';
 const DIST_DIR = './dist';
-const STYLE_DIR = './src/style'
+const STYLE_DIR = './src/style';
 
 var bundler = browserify({
     entries: [ENTRY_FILE],
