@@ -2,10 +2,21 @@
 
 namespace Gos\Bundle\NotificationBundle\Redis;
 
-use Predis\Command\ScriptedCommand;
+use Predis\Command\Command;
 
-class IndexOfElement extends ScriptedCommand
+class IndexOfElement extends Command
 {
+    /**
+     * Returns the ID of the Redis command. By convention, command identifiers
+     * must always be uppercase.
+     *
+     * @return string
+     */
+    public function getId()
+    {
+        return 'LIDXOF';
+    }
+
     /**
      * @return int
      */

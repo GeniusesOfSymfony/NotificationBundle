@@ -11,6 +11,7 @@ use Gos\Bundle\WebSocketBundle\Server\Type\ServerInterface;
 use Gos\Component\PnctlEventLoopEmitter\PnctlEmitter;
 use Predis\Async\Client;
 use Predis\Async\PubSub\PubSubContext;
+use Predis\PubSub\Consumer;
 use Predis\ResponseError;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Factory;
@@ -35,9 +36,6 @@ class PubSubServer implements ServerInterface
     /** @var  EventDispatcherInterface */
     protected $eventDispatcher;
 
-    /** @var array */
-    protected $pubSubConfig;
-
     /** @var RedisDumper */
     protected $redisDumper;
 
@@ -60,15 +58,12 @@ class PubSubServer implements ServerInterface
      */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        Array $pubSubConfig,
         RedisDumper $redisDumper,
         ServerNotificationProcessorInterface $processor,
         $debug,
         LoggerInterface $logger = null
     ) {
-        $this->logger = $logger;
         $this->eventDispatcher = $eventDispatcher;
-        $this->pubSubConfig = $pubSubConfig;
         $this->redisDumper = $redisDumper;
         $this->processor = $processor;
         $this->debug = $debug;
@@ -102,7 +97,7 @@ class PubSubServer implements ServerInterface
     /**
      * {@inheritdoc}
      */
-    public function launch($profile)
+    public function launch($host, $port, $profile)
     {
         $this->logger->info('Starting redis pubsub');
 
@@ -112,7 +107,7 @@ class PubSubServer implements ServerInterface
             $this->handlePnctlEvent();
         }
 
-        $this->client = new Client('tcp://' . $this->getAddress(), $this->loop);
+        $this->client = new Client('tcp://' . $host . ':' . $port, $this->loop);
 
         $dispatcher = new EventEmitter();
         $dispatcher->on('notification', $this->processor);
@@ -125,23 +120,24 @@ class PubSubServer implements ServerInterface
 
         $subscriptions = $this->getSubscriptions();
 
-        $this->client->connect(function () use ($dispatcher, $subscriptions) {
 
-            $this->pubSub = $this->client->pubSub($subscriptions, function ($event) use ($dispatcher) {
-                if ($event instanceof ResponseError) {
-                    throw new \Exception($event);
+        $this->client->connect(function ($client) use ($dispatcher, $subscriptions) {
+
+            $this->pubSub = $client->pubSubLoop($subscriptions, function ($event, $pubsub) use ($dispatcher) {
+                if ($event->payload === 'quit') {
+                    $this->stop();
                 }
 
-                if (!in_array($event->kind, array(PubSubContext::MESSAGE, PubSubContext::PMESSAGE))) {
+                if (!in_array($event->kind, array(Consumer::MESSAGE, Consumer::PMESSAGE))) {
                     throw new NotificationServerException(sprintf(
                         'Unsupported message type %s given, supported [%]',
                         $event->kind,
-                        [PubSubContext::MESSAGE, PubSubContext::PMESSAGE, PubSubContext::PSUBSCRIBE, PubSubContext::SUBSCRIBE, PubSubContext::UNSUBSCRIBE]
+                        [Consumer::MESSAGE, Consumer::PMESSAGE, Consumer::PSUBSCRIBE, Consumer::SUBSCRIBE, Consumer::UNSUBSCRIBE]
                     ));
                 }
 
-                if (in_array($event->kind, [PubSubContext::MESSAGE, PubSubContext::PMESSAGE])) {
-                    if ($event->kind === PubSubContext::MESSAGE) {
+                if (in_array($event->kind, [Consumer::MESSAGE, Consumer::PMESSAGE])) {
+                    if ($event->kind === Consumer::MESSAGE) {
                         $message = new Message(
                             $event->kind,
                             $event->channel,
@@ -149,7 +145,7 @@ class PubSubServer implements ServerInterface
                         );
                     }
 
-                    if ($event->kind === PubSubContext::PMESSAGE) {
+                    if ($event->kind === Consumer::PMESSAGE) {
                         $message = new PatternMessage(
                             $event->kind,
                             $event->pattern,
@@ -166,10 +162,20 @@ class PubSubServer implements ServerInterface
         $this->logger->info(sprintf(
             'Launching %s on %s',
             $this->getName(),
-            $this->getAddress()
+            $host . ':' . $port
         ));
 
         $this->loop->run();
+    }
+
+    protected function stop()
+    {
+        if (null !== $this->pubSub) {
+            $this->pubSub->quit();
+        }
+
+        $this->client->getConnection()->disconnect();
+        $this->loop->stop();
     }
 
     protected function handlePnctlEvent()
@@ -178,13 +184,7 @@ class PubSubServer implements ServerInterface
 
         $pnctlEmitter->on(SIGTERM, function () {
             $this->logger->notice('Stopping server ...');
-
-            if (null !== $this->pubSub) {
-                $this->pubSub->quit();
-            }
-
-            $this->client->getConnection()->disconnect();
-            $this->loop->stop();
+            $this->stop();
             $this->logger->notice('Server stopped !');
         });
 
@@ -193,27 +193,12 @@ class PubSubServer implements ServerInterface
 
             if (SIGINT === pcntl_sigtimedwait([SIGINT], $siginfo, 5)) {
                 $this->logger->notice('Stopping server ...');
-
-                if (null !== $this->pubSub) {
-                    $this->pubSub->quit();
-                }
-
-                $this->client->getConnection()->disconnect();
-                $this->loop->stop();
-
+                $this->stop();
                 $this->logger->notice('Server stopped !');
             } else {
                 $this->logger->notice('CTLR+C not pressed, continue to run normally');
             }
         });
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAddress()
-    {
-        return $this->pubSubConfig['host'] . ':' . $this->pubSubConfig['port'];
     }
 
     /**

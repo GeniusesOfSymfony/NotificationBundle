@@ -16,11 +16,19 @@ class ServerCommand extends Command
     protected $server;
 
     /**
-     * @param PubSubServer $server
+     * @var array
      */
-    public function __construct(PubSubServer $server)
+    protected $pubsubConfig;
+
+    /**
+     * @param PubSubServer $server
+     * @param array             $pubsubConfig
+     */
+    public function __construct(PubSubServer $server, $pubsubConfig)
     {
         $this->server = $server;
+        $this->pubsubConfig = $pubsubConfig;
+
         parent::__construct();
     }
 
@@ -38,6 +46,10 @@ class ServerCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->server->launch($input->getOption('profile'));
+        $this->server->launch(
+            $this->pubsubConfig['host'],
+            $this->pubsubConfig['port'],
+            $input->getOption('profile')
+        );
     }
 }

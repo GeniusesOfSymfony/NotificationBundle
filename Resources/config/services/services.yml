@@ -9,7 +9,6 @@ services:
         class: Gos\Bundle\NotificationBundle\Server\PubSubServer
         arguments:
             - @event_dispatcher
-            - %gos_notification.pubsub_server.config%
             - @gos_notification.notification.redis.dumper
             - @gos_notification.notification.server.processor
             - %kernel.debug%
@@ -19,6 +18,7 @@ services:
         class: Gos\Bundle\NotificationBundle\Command\ServerCommand
         arguments:
             - @gos_notification.notification.pubsub.server
+            - %gos_notification.pubsub_server.config%
         tags:
             - { name: console.command }
 
@@ -47,8 +47,8 @@ services:
         arguments:
             - @snc_redis.notification
             - @gos_pubsub_router.redis
-#        tags:
-#            - { name: gos_notification.pusher }
+        tags:
+            - { name: gos_notification.pusher }
 
     gos_notification.pusher.websocket:
         class: Gos\Bundle\NotificationBundle\Pusher\WebsocketPusher
@@ -59,8 +59,8 @@ services:
             - %web_socket_server.port%
             - @gos_pubsub_router.websocket
             - @?monolog.logger.notification
-#        tags:
-#            - { name: gos_notification.pusher }
+        tags:
+            - { name: gos_notification.pusher }
 
     gos_notification.notification.procedure:
         class: Gos\Bundle\NotificationBundle\Procedure\NotificationProcedure

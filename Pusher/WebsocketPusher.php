@@ -37,6 +37,16 @@ class WebsocketPusher extends AbstractPusher implements YoloInterface
     protected $logger;
 
     /**
+     * @var bool
+     */
+    protected $connected;
+
+    /**
+     * @var Client
+     */
+    protected $ws;
+
+    /**
      * @param string          $serverHost
      * @param int             $serverPort
      * @param RouterInterface $router
@@ -48,6 +58,7 @@ class WebsocketPusher extends AbstractPusher implements YoloInterface
         $this->serverPort = $serverPort;
         $this->router = $router;
         $this->logger = null === $logger ? new NullLogger() : $logger;
+        $this->connected = false;
     }
 
     /**
@@ -82,15 +93,15 @@ class WebsocketPusher extends AbstractPusher implements YoloInterface
         array $matrix,
         NotificationContextInterface $context = null
     ) {
-        $socket = new Client($this->serverHost, $this->serverPort);
-        $socket->connect();
+        if(false === $this->connected){
+            $this->ws = new Client($this->serverHost, $this->serverPort);
+            $this->ws->connect();
+        }
 
         foreach ($this->generateRoutes($request->getRoute(), $matrix) as $channel) {
             $notification->setChannel($channel);
-            $socket->publish($channel, json_encode($notification));
+            $this->ws->publish($channel, json_encode($notification));
         }
-
-        $socket->disconnect();
     }
 
     /**
